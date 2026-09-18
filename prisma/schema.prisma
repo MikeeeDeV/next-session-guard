@@ -1,0 +1,48 @@
+// Sample Prisma Schema for next-session-guard
+// You can copy and adapt this into your existing schema.prisma
+
+datasource db {
+  provider = "postgresql" // or "mysql", "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relationship to sessions
+  sessions  Session[]
+}
+
+model Session {
+  id           String    @id @default(cuid())
+  sessionToken String    @unique
+  userId       String
+  expires      DateTime
+  
+  // ── Next-Session-Guard Extended Fields ──────────────────
+  ipAddress    String?
+  userAgent    String?   @db.Text
+  deviceType   String?   // "desktop" | "mobile" | "tablet" | "unknown"
+  browser      String?   // "Chrome" | "Safari" | "Firefox" | "Edge" | etc.
+  os           String?   // "Windows" | "macOS" | "iOS" | "Android" | "Linux"
+  city         String?   // Optional geolocation
+  country      String?   // Optional country code (e.g. "EG", "SA", "US")
+  lastActiveAt DateTime  @default(now())
+  isRevoked    Boolean   @default(false)
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  // Relationships & Indexes
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRevoked])
+  @@index([sessionToken])
+}

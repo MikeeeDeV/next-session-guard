@@ -1,0 +1,50 @@
+{
+  "name": "next-session-guard",
+  "version": "1.0.0",
+  "description": "Production-ready multi-device session management, device tracking, and remote session revocation for Next.js & Prisma.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/next-session-guard.git"
+  },
+  "keywords": [
+    "nextjs",
+    "session",
+    "session-management",
+    "next-auth",
+    "prisma",
+    "auth",
+    "device-tracking",
+    "security",
+    "revoke-sessions",
+    "authentication"
+  ],
+  "author": "Mohamed Ayman",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "next": ">=14.0.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "@prisma/client": ">=5.0.0"
+  },
+  "dependencies": {
+    "lucide-react": "^0.475.0"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.4.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "next": "^15.0.0",
+    "prisma": "^6.4.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.0.0"
+  }
+}
