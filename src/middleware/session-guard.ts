@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { CacheAdapter } from "../core/types";
 
 export interface SessionGuardOptions {
   /**
@@ -22,10 +23,19 @@ export interface SessionGuardOptions {
    * Paths to exclude from session enforcement
    */
   publicPaths?: string[];
+
+  /**
+   * Optional cache adapter for sub-millisecond Edge blacklist checks.
+   * When provided, the middleware checks the cache FIRST before calling validateToken.
+   * This avoids hitting the database on every single request.
+   */
+  cache?: CacheAdapter;
 }
 
 /**
- * Middleware session guard to verify that active cookies haven't been revoked remotely
+ * Middleware session guard to verify that active cookies haven't been revoked remotely.
+ * When a cache adapter is provided, revoked tokens are checked in sub-millisecond time
+ * before falling back to the database.
  */
 export async function sessionGuardMiddleware(
   req: NextRequest,
@@ -47,19 +57,48 @@ export async function sessionGuardMiddleware(
   const tokenCookie = req.cookies.get(options.cookieName || defaultCookie)?.value;
 
   if (tokenCookie) {
+    // ── Fast path: Check cache blacklist first ─────────────
+    if (options.cache) {
+      try {
+        const isBlacklisted = await options.cache.isBlacklisted(tokenCookie);
+        if (isBlacklisted) {
+          return createRevokedResponse(req, options, defaultCookie);
+        }
+      } catch (err) {
+        console.error("[SessionGuard Middleware] Cache check error:", err);
+        // Fall through to validateToken
+      }
+    }
+
+    // ── Standard path: Validate against database ──────────
     const isValid = await options.validateToken(tokenCookie);
     if (!isValid) {
-      // Clear cookie and redirect
-      const redirectTarget = new URL(
-        options.redirectUrl || "/auth/login?revoked=true",
-        req.nextUrl
-      );
-      const response = NextResponse.redirect(redirectTarget);
-      response.cookies.delete(options.cookieName || defaultCookie);
-      return response;
+      // Auto-blacklist in cache for future fast rejection
+      if (options.cache) {
+        options.cache
+          .blacklist(tokenCookie)
+          .catch((err) => console.error("[SessionGuard Middleware] Cache blacklist error:", err));
+      }
+      return createRevokedResponse(req, options, defaultCookie);
     }
   }
 
   return null;
 }
 
+/**
+ * Creates a redirect response for revoked/expired sessions
+ */
+function createRevokedResponse(
+  req: NextRequest,
+  options: SessionGuardOptions,
+  defaultCookie: string
+): NextResponse {
+  const redirectTarget = new URL(
+    options.redirectUrl || "/auth/login?revoked=true",
+    req.nextUrl
+  );
+  const response = NextResponse.redirect(redirectTarget);
+  response.cookies.delete(options.cookieName || defaultCookie);
+  return response;
+}

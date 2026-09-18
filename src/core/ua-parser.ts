@@ -4,23 +4,7 @@ import { DeviceType, ParsedClientInfo } from "./types";
  * Extracts the real client IP address from various standard HTTP proxy headers
  */
 export function extractClientIp(headersSource: Request | Headers | Record<string, string | string[] | undefined>): string {
-  let headers: { get: (key: string) => string | null };
-
-  if (headersSource instanceof Request) {
-    headers = headersSource.headers;
-  } else if (typeof (headersSource as Headers).get === "function") {
-    headers = headersSource as Headers;
-  } else {
-    // Record / plain object fallback
-    const record = headersSource as Record<string, string | string[] | undefined>;
-    headers = {
-      get: (key: string) => {
-        const val = record[key.toLowerCase()] || record[key];
-        if (Array.isArray(val)) return val[0] || null;
-        return val || null;
-      },
-    };
-  }
+  const headers = normalizeHeaders(headersSource);
 
   // Common proxy / CDN headers in order of preference
   const headerKeys = [
@@ -43,6 +27,71 @@ export function extractClientIp(headersSource: Request | Headers | Record<string
   }
 
   return "127.0.0.1";
+}
+
+/**
+ * Extracts geo-location (country & city) from hosting-provider headers.
+ * Zero-dependency: reads headers injected automatically by Vercel, Cloudflare, AWS CloudFront, and Fastly.
+ */
+export function extractGeoInfo(
+  headersSource: Request | Headers | Record<string, string | string[] | undefined>
+): { city?: string; country?: string } {
+  const headers = normalizeHeaders(headersSource);
+
+  let country: string | undefined;
+  let city: string | undefined;
+
+  // ── Vercel ──────────────────────────────────────────────
+  const vercelCountry = headers.get("x-vercel-ip-country");
+  const vercelCity = headers.get("x-vercel-ip-city");
+  if (vercelCountry) country = vercelCountry;
+  if (vercelCity) city = decodeURIComponent(vercelCity);
+
+  // ── Cloudflare ─────────────────────────────────────────
+  if (!country) {
+    const cfCountry = headers.get("cf-ipcountry");
+    if (cfCountry && cfCountry !== "XX") country = cfCountry;
+  }
+  if (!city) {
+    const cfCity = headers.get("cf-ipcity");
+    if (cfCity) city = decodeURIComponent(cfCity);
+  }
+
+  // ── AWS CloudFront ─────────────────────────────────────
+  if (!country) {
+    const awsCountry = headers.get("cloudfront-viewer-country");
+    if (awsCountry) country = awsCountry;
+  }
+  if (!city) {
+    const awsCity = headers.get("cloudfront-viewer-city");
+    if (awsCity) city = decodeURIComponent(awsCity);
+  }
+
+  // ── Fastly ─────────────────────────────────────────────
+  if (!country) {
+    const fastlyCountry = headers.get("x-client-geo-country");
+    if (fastlyCountry) country = fastlyCountry;
+  }
+  if (!city) {
+    const fastlyCity = headers.get("x-client-geo-city");
+    if (fastlyCity) city = decodeURIComponent(fastlyCity);
+  }
+
+  return { city, country };
+}
+
+/**
+ * Converts a 2-letter ISO country code to its flag emoji.
+ * e.g. "EG" → "🇪🇬", "US" → "🇺🇸"
+ */
+export function countryCodeToFlag(countryCode: string): string {
+  if (!countryCode || countryCode.length !== 2) return "";
+  const code = countryCode.toUpperCase();
+  const offset = 0x1F1E6 - 65; // 'A' = 65
+  return String.fromCodePoint(
+    code.charCodeAt(0) + offset,
+    code.charCodeAt(1) + offset
+  );
 }
 
 /**
@@ -110,7 +159,8 @@ export function parseClientInfo(
 }
 
 /**
- * Convenient helper to parse directly from a Next.js Request or Headers instance
+ * Convenient helper to parse directly from a Next.js Request or Headers instance.
+ * Automatically extracts IP, User-Agent, and geo-location from hosting-provider headers.
  */
 export function getClientMetadata(reqOrHeaders: Request | Headers): ParsedClientInfo {
   let headers: Headers;
@@ -122,7 +172,36 @@ export function getClientMetadata(reqOrHeaders: Request | Headers): ParsedClient
 
   const userAgent = headers.get("user-agent");
   const ip = extractClientIp(headers);
+  const geo = extractGeoInfo(headers);
 
-  return parseClientInfo(userAgent, ip);
+  const info = parseClientInfo(userAgent, ip);
+  info.city = geo.city;
+  info.country = geo.country;
+
+  return info;
 }
 
+// ── Internal helpers ──────────────────────────────────────
+
+/**
+ * Normalizes various header sources into a consistent { get(key) } interface
+ */
+function normalizeHeaders(
+  headersSource: Request | Headers | Record<string, string | string[] | undefined>
+): { get: (key: string) => string | null } {
+  if (headersSource instanceof Request) {
+    return headersSource.headers;
+  } else if (typeof (headersSource as Headers).get === "function") {
+    return headersSource as Headers;
+  } else {
+    // Record / plain object fallback
+    const record = headersSource as Record<string, string | string[] | undefined>;
+    return {
+      get: (key: string) => {
+        const val = record[key.toLowerCase()] || record[key];
+        if (Array.isArray(val)) return val[0] || null;
+        return val || null;
+      },
+    };
+  }
+}
