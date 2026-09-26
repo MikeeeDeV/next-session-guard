@@ -635,6 +635,65 @@ describe("SessionManager", () => {
       expect(ctx.isNewLocation).toBe(true);
     });
 
+    it("falls back to Unknown for missing browser or os in existingSessions in detectNewDevice context", async () => {
+      const callback = vi.fn();
+      const alertManager = new SessionManager(prisma, {
+        onNewDeviceDetected: callback,
+      });
+
+      // Existing normal session 1
+      prisma._store.push({
+        id: "sess-norm",
+        sessionToken: "norm-token",
+        userId: "user-hist",
+        expires: new Date(Date.now() + 60000),
+        ipAddress: "1.1.1.1",
+        userAgent: null,
+        deviceType: "desktop",
+        browser: "Firefox",
+        os: "Linux",
+        city: null,
+        country: null,
+        lastActiveAt: new Date(Date.now() - 2000),
+        isRevoked: false,
+        revokedAt: null,
+        createdAt: new Date(),
+      });
+
+      // Existing raw session with null browser/os
+      prisma._store.push({
+        id: "sess-raw-hist",
+        sessionToken: "raw-hist-token",
+        userId: "user-hist",
+        expires: new Date(Date.now() + 60000),
+        ipAddress: "5.5.5.5",
+        userAgent: null,
+        deviceType: "desktop",
+        browser: null as any,
+        os: null as any,
+        city: null,
+        country: null,
+        lastActiveAt: new Date(Date.now() - 1000),
+        isRevoked: false,
+        revokedAt: null,
+        createdAt: new Date(),
+      });
+
+      // New session with different browser (Chrome)
+      await alertManager.createSession({
+        userId: "user-hist",
+        userAgent: "Mozilla/5.0 Chrome/120.0.0.0",
+        ipAddress: "6.6.6.6",
+      });
+
+      await new Promise((r) => setTimeout(r, 100));
+      expect(callback).toHaveBeenCalled();
+      const ctx = callback.mock.calls[0][0];
+      const fallbackSession = ctx.existingSessions.find((s: any) => s.ipAddress === "5.5.5.5");
+      expect(fallbackSession?.browser).toBe("Unknown");
+      expect(fallbackSession?.os).toBe("Unknown");
+    });
+
     it("does not fire when login parameters are identical", async () => {
       const callback = vi.fn();
       const alertManager = new SessionManager(prisma, {
