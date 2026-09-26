@@ -82,5 +82,14 @@ export default defineConfig([
       "@prisma/client",
     ],
   },
+
+  // ── Realtime SSE entry ─────────────────────────────────
+  {
+    ...sharedConfig,
+    entry: { realtime: "src/realtime/index.ts" },
+    format: ["esm", "cjs"],
+    dts: true,
+    external: [],
+  },
 ]);
 

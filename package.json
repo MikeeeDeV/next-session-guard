@@ -25,6 +25,11 @@
       "types": "./dist/telegram.d.ts",
       "import": "./dist/telegram.mjs",
       "require": "./dist/telegram.js"
+    },
+    "./realtime": {
+      "types": "./dist/realtime.d.ts",
+      "import": "./dist/realtime.mjs",
+      "require": "./dist/realtime.js"
     }
   },
   "files": [
