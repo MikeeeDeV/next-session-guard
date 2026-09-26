@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseClientInfo, extractClientIp, extractGeoInfo, countryCodeToFlag } from "../src/core/ua-parser";
+import { parseClientInfo, extractClientIp, extractGeoInfo, countryCodeToFlag, getClientMetadata } from "../src/core/ua-parser";
 
 // ── Real-world User-Agent strings ─────────────────────────────────────────────
 
@@ -216,3 +216,77 @@ describe("countryCodeToFlag", () => {
     expect(countryCodeToFlag("XYZ")).toBe("");
   });
 });
+
+// ── getClientMetadata Tests ───────────────────────────────────────────────────
+
+describe("getClientMetadata", () => {
+  it("extracts full client metadata from a Request instance", () => {
+    const req = new Request("https://example.com", {
+      headers: {
+        "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
+        "x-forwarded-for": "198.51.100.1, 192.168.1.1",
+        "x-vercel-ip-city": "Alexandria",
+        "x-vercel-ip-country": "EG",
+      },
+    });
+
+    const metadata = getClientMetadata(req);
+    expect(metadata.browser).toBe("Chrome");
+    expect(metadata.os).toBe("Windows 10/11");
+    expect(metadata.deviceType).toBe("desktop");
+    expect(metadata.ipAddress).toBe("198.51.100.1");
+    expect(metadata.city).toBe("Alexandria");
+    expect(metadata.country).toBe("EG");
+    expect(metadata.rawUserAgent).toBe(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
+    );
+  });
+
+  it("extracts client metadata from a Headers instance", () => {
+    const headers = new Headers();
+    headers.set(
+      "user-agent",
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1"
+    );
+    headers.set("cf-connecting-ip", "203.0.113.195");
+    headers.set("cf-ipcity", "Dubai");
+    headers.set("cf-ipcountry", "AE");
+
+    const metadata = getClientMetadata(headers);
+    expect(metadata.browser).toBe("Safari");
+    expect(metadata.os).toBe("iOS");
+    expect(metadata.deviceType).toBe("mobile");
+    expect(metadata.ipAddress).toBe("203.0.113.195");
+    expect(metadata.city).toBe("Dubai");
+    expect(metadata.country).toBe("AE");
+  });
+
+  it("handles missing geo and IP headers gracefully", () => {
+    const headers = new Headers();
+    const metadata = getClientMetadata(headers);
+    expect(metadata.browser).toBe("Unknown Browser");
+    expect(metadata.os).toBe("Unknown OS");
+    expect(metadata.deviceType).toBe("desktop");
+    expect(metadata.ipAddress).toBe("127.0.0.1");
+    expect(metadata.city).toBeUndefined();
+    expect(metadata.country).toBeUndefined();
+  });
+
+  it("extractClientIp and extractGeoInfo handle Request directly", () => {
+    const req = new Request("https://example.com", {
+      headers: {
+        "x-real-ip": "10.0.0.1",
+        "cf-ipcity": "London",
+        "cf-ipcountry": "GB",
+      },
+    });
+
+    expect(extractClientIp(req as any)).toBe("10.0.0.1");
+    expect(extractGeoInfo(req as any)).toEqual({
+      city: "London",
+      country: "GB",
+    });
+  });
+});
+

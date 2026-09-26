@@ -551,5 +551,297 @@ describe("SessionManager", () => {
       await new Promise((r) => setTimeout(r, 100));
       expect(callback).not.toHaveBeenCalled();
     });
+
+    it("fires callback when new OS is detected", async () => {
+      const callback = vi.fn();
+      const alertManager = new SessionManager(prisma, {
+        onNewDeviceDetected: callback,
+      });
+
+      // Windows
+      await alertManager.createSession({
+        userId: "user-os",
+        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
+      });
+
+      // macOS with same browser
+      await alertManager.createSession({
+        userId: "user-os",
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/120.0.0.0 Safari/537.36",
+      });
+
+      await new Promise((r) => setTimeout(r, 100));
+      expect(callback).toHaveBeenCalled();
+      const ctx = callback.mock.calls[0][0];
+      expect(ctx.isNewOS).toBe(true);
+    });
+
+    it("fires callback when new IP or location is detected", async () => {
+      const callback = vi.fn();
+      const alertManager = new SessionManager(prisma, {
+        onNewDeviceDetected: callback,
+      });
+
+      // IP 1
+      const req1 = new Request("https://example.com", {
+        headers: {
+          "user-agent": "Mozilla/5.0 Chrome/120.0.0.0",
+          "x-real-ip": "1.1.1.1",
+          "x-vercel-ip-country": "US",
+        },
+      });
+      await alertManager.createSession({ userId: "user-loc", req: req1 });
+
+      // IP 2 & different country
+      const req2 = new Request("https://example.com", {
+        headers: {
+          "user-agent": "Mozilla/5.0 Chrome/120.0.0.0",
+          "x-real-ip": "2.2.2.2",
+          "x-vercel-ip-country": "EG",
+        },
+      });
+      await alertManager.createSession({ userId: "user-loc", req: req2 });
+
+      await new Promise((r) => setTimeout(r, 100));
+      expect(callback).toHaveBeenCalled();
+      const ctx = callback.mock.calls[0][0];
+      expect(ctx.isNewIP).toBe(true);
+      expect(ctx.isNewLocation).toBe(true);
+    });
+
+    it("does not fire when login parameters are identical", async () => {
+      const callback = vi.fn();
+      const alertManager = new SessionManager(prisma, {
+        onNewDeviceDetected: callback,
+      });
+
+      const ua = "Mozilla/5.0 Chrome/120.0.0.0";
+      await alertManager.createSession({ userId: "user-same", userAgent: ua, ipAddress: "10.0.0.1" });
+      await alertManager.createSession({ userId: "user-same", userAgent: ua, ipAddress: "10.0.0.1" });
+
+      await new Promise((r) => setTimeout(r, 100));
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it("handles errors thrown inside onNewDeviceDetected gracefully", async () => {
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const alertManager = new SessionManager(prisma, {
+        onNewDeviceDetected: async () => {
+          throw new Error("Callback crashed");
+        },
+      });
+
+      await alertManager.createSession({
+        userId: "user-crash",
+        userAgent: "Mozilla/5.0 Chrome/120.0.0.0",
+      });
+      await alertManager.createSession({
+        userId: "user-crash",
+        userAgent: "Mozilla/5.0 Firefox/121.0",
+      });
+
+      await new Promise((r) => setTimeout(r, 100));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "[SessionGuard] onNewDeviceDetected error:",
+        expect.any(Error)
+      );
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  // ── Additional Edge Cases ──────────────────────────────────
+
+  describe("additional edge cases", () => {
+    it("handles createSession with Request object and geo headers", async () => {
+      const req = new Request("https://example.com", {
+        headers: {
+          "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
+          "cf-connecting-ip": "198.51.100.55",
+          "cf-ipcity": "Tokyo",
+          "cf-ipcountry": "JP",
+        },
+      });
+
+      const session = await manager.createSession({
+        userId: "user-req",
+        req,
+      });
+
+      expect(session.deviceType).toBe("mobile");
+      expect(session.ipAddress).toBe("198.51.100.55");
+      expect(session.city).toBe("Tokyo");
+      expect(session.country).toBe("JP");
+    });
+
+    it("handles geoProvider error gracefully during createSession", async () => {
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const errorGeoManager = new SessionManager(prisma, {
+        geoProvider: async () => {
+          throw new Error("Geo service timeout");
+        },
+      });
+
+      const session = await errorGeoManager.createSession({
+        userId: "user-err-geo",
+        ipAddress: "123.123.123.123",
+      });
+
+      expect(session.city).toBeNull();
+      expect(session.country).toBeNull();
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "[SessionGuard] geoProvider error:",
+        expect.any(Error)
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("throttles lastActiveAt update on validateSession", async () => {
+      const session = await manager.createSession({
+        userId: "user-throttle",
+        sessionToken: "throttle-token",
+      });
+
+      const initialActiveAt = new Date(session.lastActiveAt);
+
+      // Validate immediately — within throttle window (300 seconds)
+      await manager.validateSession("throttle-token");
+      expect(prisma.session.update).not.toHaveBeenCalled();
+
+      // Simulate lastActiveAt being older than 300 seconds
+      prisma._store[0].lastActiveAt = new Date(Date.now() - 400 * 1000);
+
+      await manager.validateSession("throttle-token");
+      expect(prisma.session.update).toHaveBeenCalled();
+    });
+
+    it("handles prisma update failure gracefully on validateSession touch", async () => {
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const session = await manager.createSession({
+        userId: "user-touch-err",
+        sessionToken: "touch-err-token",
+      });
+
+      prisma._store[0].lastActiveAt = new Date(Date.now() - 400 * 1000);
+      (prisma.session.update as any).mockRejectedValueOnce(new Error("DB locked"));
+
+      const res = await manager.validateSession("touch-err-token");
+      expect(res.valid).toBe(true);
+
+      await new Promise((r) => setTimeout(r, 50));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "[SessionGuard] Failed to touch session:",
+        expect.any(Error)
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("handles cache error gracefully during validateSession and falls through", async () => {
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const mockCache: CacheAdapter = {
+        isBlacklisted: vi.fn().mockRejectedValue(new Error("Redis offline")),
+        blacklist: vi.fn(),
+        removeFromBlacklist: vi.fn(),
+      };
+
+      const cachedManager = new SessionManager(prisma, { cacheAdapter: mockCache });
+      await cachedManager.createSession({
+        userId: "user-cache-err",
+        sessionToken: "cache-err-token",
+      });
+
+      const res = await cachedManager.validateSession("cache-err-token");
+      expect(res.valid).toBe(true);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "[SessionGuard] Cache check error:",
+        expect.any(Error)
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("blacklists revoked session in cache when detected by validateSession", async () => {
+      const mockCache: CacheAdapter = {
+        isBlacklisted: vi.fn().mockResolvedValue(false),
+        blacklist: vi.fn().mockResolvedValue(undefined),
+        removeFromBlacklist: vi.fn(),
+      };
+
+      const cachedManager = new SessionManager(prisma, { cacheAdapter: mockCache });
+      const session = await cachedManager.createSession({
+        userId: "user-rev-val",
+        sessionToken: "rev-val-token",
+      });
+
+      prisma._store[0].isRevoked = true;
+
+      const res = await cachedManager.validateSession("rev-val-token");
+      expect(res.valid).toBe(false);
+      expect(res.reason).toBe("REVOKED");
+
+      await new Promise((r) => setTimeout(r, 50));
+      expect(mockCache.blacklist).toHaveBeenCalledWith("rev-val-token");
+    });
+
+    it("revokes other sessions using currentSessionId and blacklists in cache", async () => {
+      const mockCache: CacheAdapter = {
+        isBlacklisted: vi.fn().mockResolvedValue(false),
+        blacklist: vi.fn().mockResolvedValue(undefined),
+        removeFromBlacklist: vi.fn(),
+      };
+
+      const cachedManager = new SessionManager(prisma, { cacheAdapter: mockCache });
+      const s1 = await cachedManager.createSession({ userId: "u-id-test", sessionToken: "t1" });
+      const s2 = await cachedManager.createSession({ userId: "u-id-test", sessionToken: "t2" });
+
+      const count = await cachedManager.revokeOtherSessions({
+        userId: "u-id-test",
+        currentSessionId: s1.id,
+      });
+
+      expect(count).toBe(1);
+      await new Promise((r) => setTimeout(r, 50));
+      expect(mockCache.blacklist).toHaveBeenCalledWith("t2");
+    });
+
+    it("blacklists tokens in cache when revokeAllSessions is called", async () => {
+      const mockCache: CacheAdapter = {
+        isBlacklisted: vi.fn().mockResolvedValue(false),
+        blacklist: vi.fn().mockResolvedValue(undefined),
+        removeFromBlacklist: vi.fn(),
+      };
+
+      const cachedManager = new SessionManager(prisma, { cacheAdapter: mockCache });
+      await cachedManager.createSession({ userId: "u-all", sessionToken: "all-1" });
+      await cachedManager.createSession({ userId: "u-all", sessionToken: "all-2" });
+
+      const count = await cachedManager.revokeAllSessions("u-all");
+      expect(count).toBe(2);
+
+      await new Promise((r) => setTimeout(r, 50));
+      expect(mockCache.blacklist).toHaveBeenCalledWith("all-1");
+      expect(mockCache.blacklist).toHaveBeenCalledWith("all-2");
+    });
+
+    it("blacklists evicted sessions in cache when maxConcurrentSessions is exceeded", async () => {
+      const mockCache: CacheAdapter = {
+        isBlacklisted: vi.fn().mockResolvedValue(false),
+        blacklist: vi.fn().mockResolvedValue(undefined),
+        removeFromBlacklist: vi.fn(),
+      };
+
+      const cachedManager = new SessionManager(prisma, {
+        maxConcurrentSessions: 2,
+        cacheAdapter: mockCache,
+      });
+
+      await cachedManager.createSession({ userId: "u-evict", sessionToken: "evict-old" });
+      prisma._store[0].lastActiveAt = new Date(Date.now() - 5000);
+
+      await cachedManager.createSession({ userId: "u-evict", sessionToken: "evict-mid" });
+      await cachedManager.createSession({ userId: "u-evict", sessionToken: "evict-new" });
+
+      await new Promise((r) => setTimeout(r, 50));
+      expect(mockCache.blacklist).toHaveBeenCalledWith("evict-old");
+    });
   });
 });
+
