@@ -797,6 +797,8 @@ describe("SessionManager", () => {
 
       await manager.validateSession("throttle-token");
       expect(prisma.session.update).toHaveBeenCalled();
+    });
+
     it("falls back to createdAt when lastActiveAt is missing on validateSession", async () => {
       await manager.createSession({
         userId: "user-no-last-active",
