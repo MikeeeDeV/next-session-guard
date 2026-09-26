@@ -53,10 +53,12 @@
   "author": "Mohamed Ayman",
   "license": "MIT",
   "scripts": {
+    "dev": "tsup --watch",
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
