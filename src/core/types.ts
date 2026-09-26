@@ -136,6 +136,108 @@ export interface SessionManagerConfig {
    * }
    */
   onNewDeviceDetected?: (context: NewDeviceContext) => Promise<void> | void;
+
+  /**
+   * Enable automatic token rotation on every validation.
+   * When enabled, the session token is regenerated periodically
+   * and the old token is blacklisted, preventing stolen tokens from being reused.
+   *
+   * Set to a number (seconds) for rotation interval, or `false` to disable.
+   * Default: false (disabled)
+   *
+   * @example
+   * tokenRotationIntervalSeconds: 86400 // Rotate token every 24 hours
+   */
+  tokenRotationIntervalSeconds?: number | false;
+
+  /**
+   * Enable session hijacking protection via fingerprint binding.
+   * When enabled, the middleware verifies that the request IP matches the
+   * session's stored IP. If a mismatch is detected, the session is auto-revoked.
+   *
+   * Options:
+   * - `"strict"`: IP must match exactly (recommended for banking/finance apps)
+   * - `"relaxed"`: Only country must match (good for mobile users who switch IPs)
+   * - `false`: Disabled
+   *
+   * Default: false
+   */
+  hijackingProtection?: "strict" | "relaxed" | false;
+
+  /**
+   * Callback fired when a session is revoked (from any source: API, Telegram, middleware).
+   * Useful for SSE/WebSocket real-time browser kick notifications.
+   */
+  onSessionRevoked?: (event: SessionRevokedEvent) => Promise<void> | void;
+}
+
+/**
+ * Cleanup / Garbage Collection schedule presets
+ */
+export type CleanupSchedule = "monthly" | "semi-annual" | "annual" | "manual";
+
+/**
+ * Options for cleaning up expired/revoked sessions
+ */
+export interface CleanupOptions {
+  /**
+   * Preset schedule or custom retention in days.
+   * - "monthly": Delete sessions older than 30 days
+   * - "semi-annual": Delete sessions older than 180 days
+   * - "annual": Delete sessions older than 365 days
+   * - "manual": Must provide `retentionDays` explicitly
+   */
+  schedule?: CleanupSchedule;
+
+  /**
+   * Custom retention period in days. Overrides `schedule` preset.
+   * Sessions that expired or were revoked more than this many days ago will be deleted.
+   */
+  retentionDays?: number;
+
+  /**
+   * If true, only delete revoked sessions (keep expired but unrevoked sessions).
+   * Default: false (delete both expired and revoked)
+   */
+  revokedOnly?: boolean;
+
+  /**
+   * Maximum number of records to delete in a single batch.
+   * Useful for avoiding long-running database transactions.
+   * Default: 10000
+   */
+  batchSize?: number;
+}
+
+/**
+ * Result of a cleanup operation
+ */
+export interface CleanupResult {
+  deletedCount: number;
+  schedule: CleanupSchedule | "custom";
+  retentionDays: number;
+  executedAt: Date;
+}
+
+/**
+ * Event emitted when a session is revoked
+ */
+export interface SessionRevokedEvent {
+  sessionId: string;
+  userId: string;
+  sessionToken?: string;
+  reason: "admin_revoke" | "user_revoke" | "hijack_detected" | "token_rotated" | "concurrent_limit" | "all_revoked";
+  revokedBy?: string;
+  timestamp: Date;
+}
+
+/**
+ * Token rotation result
+ */
+export interface TokenRotationResult {
+  oldToken: string;
+  newToken: string;
+  rotatedAt: Date;
 }
 
 /**

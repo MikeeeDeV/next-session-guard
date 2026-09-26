@@ -1,12 +1,16 @@
 import {
   ActiveSessionDTO,
   CacheAdapter,
+  CleanupOptions,
+  CleanupResult,
   CreateSessionOptions,
   MinimalPrismaClient,
   NewDeviceContext,
   RevokeOtherSessionsOptions,
   RevokeSessionOptions,
   SessionManagerConfig,
+  SessionRevokedEvent,
+  TokenRotationResult,
 } from "./types";
 import { getClientMetadata, parseClientInfo } from "./ua-parser";
 
@@ -18,6 +22,9 @@ export class SessionManager {
     cacheAdapter?: CacheAdapter;
     geoProvider?: SessionManagerConfig["geoProvider"];
     onNewDeviceDetected?: SessionManagerConfig["onNewDeviceDetected"];
+    tokenRotationIntervalSeconds: number | false;
+    hijackingProtection: "strict" | "relaxed" | false;
+    onSessionRevoked?: SessionManagerConfig["onSessionRevoked"];
   };
 
   constructor(prismaClient: any, config?: SessionManagerConfig) {
@@ -29,6 +36,9 @@ export class SessionManager {
       cacheAdapter: config?.cacheAdapter,
       geoProvider: config?.geoProvider,
       onNewDeviceDetected: config?.onNewDeviceDetected,
+      tokenRotationIntervalSeconds: config?.tokenRotationIntervalSeconds ?? false,
+      hijackingProtection: config?.hijackingProtection ?? false,
+      onSessionRevoked: config?.onSessionRevoked,
     };
   }
 
@@ -451,6 +461,177 @@ export class SessionManager {
     };
 
     await this.config.onNewDeviceDetected!(context);
+  }
+
+  /**
+   * Rotates the session token for a given session.
+   * The old token is blacklisted in cache and the session record is updated.
+   */
+  async rotateToken(sessionToken: string): Promise<TokenRotationResult | null> {
+    const session = await this.prisma.session.findUnique({
+      where: { sessionToken },
+    });
+
+    if (!session || session.isRevoked) return null;
+
+    const newToken = this.generateSessionToken();
+
+    await this.prisma.session.update({
+      where: { id: session.id },
+      data: { sessionToken: newToken },
+    });
+
+    // Blacklist old token
+    if (this.config.cacheAdapter) {
+      this.config.cacheAdapter
+        .blacklist(sessionToken)
+        .catch((err) => console.error("[SessionGuard] Token rotation blacklist error:", err));
+    }
+
+    return {
+      oldToken: sessionToken,
+      newToken,
+      rotatedAt: new Date(),
+    };
+  }
+
+  /**
+   * Validates a session with hijacking protection.
+   * Compares the request's IP/country against the session's stored values.
+   */
+  async validateSessionWithHijackProtection(
+    sessionToken: string,
+    currentIp?: string,
+    currentCountry?: string
+  ) {
+    const result = await this.validateSession(sessionToken);
+    if (!result.valid || !result.session) return result;
+
+    const mode = this.config.hijackingProtection;
+    if (!mode) return result;
+
+    const session = result.session;
+
+    if (mode === "strict" && currentIp && session.ipAddress) {
+      if (currentIp !== session.ipAddress) {
+        // IP mismatch -> possible hijack
+        await this.revokeSession({ sessionId: session.id, userId: session.userId });
+        this.fireSessionRevoked({
+          sessionId: session.id,
+          userId: session.userId,
+          sessionToken,
+          reason: "hijack_detected",
+          timestamp: new Date(),
+        });
+        return { valid: false, session: null, reason: "HIJACK_DETECTED" as const };
+      }
+    }
+
+    if (mode === "relaxed" && currentCountry && session.country) {
+      if (currentCountry.toUpperCase() !== session.country.toUpperCase()) {
+        await this.revokeSession({ sessionId: session.id, userId: session.userId });
+        this.fireSessionRevoked({
+          sessionId: session.id,
+          userId: session.userId,
+          sessionToken,
+          reason: "hijack_detected",
+          timestamp: new Date(),
+        });
+        return { valid: false, session: null, reason: "HIJACK_DETECTED" as const };
+      }
+    }
+
+    // Token rotation check
+    if (this.config.tokenRotationIntervalSeconds) {
+      const sessionCreated = new Date(session.createdAt).getTime();
+      const lastRotation = sessionCreated; // Track from creation as baseline
+      const interval = this.config.tokenRotationIntervalSeconds * 1000;
+      if (Date.now() - lastRotation > interval) {
+        const rotationResult = await this.rotateToken(sessionToken);
+        if (rotationResult) {
+          return {
+            valid: true,
+            session: { ...session, sessionToken: rotationResult.newToken },
+            reason: null,
+            rotatedToken: rotationResult.newToken,
+          };
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Garbage Collector: Cleans up expired and revoked sessions.
+   * Supports preset schedules (monthly, semi-annual, annual) or manual retention.
+   */
+  async cleanupExpiredSessions(options?: CleanupOptions): Promise<CleanupResult> {
+    const schedulePresets: Record<string, number> = {
+      monthly: 30,
+      "semi-annual": 180,
+      annual: 365,
+    };
+
+    const schedule = options?.schedule || "manual";
+    const retentionDays =
+      options?.retentionDays ?? schedulePresets[schedule] ?? 30;
+    const batchSize = options?.batchSize ?? 10000;
+
+    const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
+
+    const whereClause: any = options?.revokedOnly
+      ? {
+          isRevoked: true,
+          revokedAt: { lt: cutoffDate },
+        }
+      : {
+          OR: [
+            { isRevoked: true, revokedAt: { lt: cutoffDate } },
+            { expires: { lt: cutoffDate } },
+          ],
+        };
+
+    // Batch delete for safety
+    const sessionsToDelete = await this.prisma.session.findMany({
+      where: whereClause,
+      take: batchSize,
+      select: { id: true },
+    });
+
+    let deletedCount = 0;
+    if (sessionsToDelete.length > 0) {
+      const ids = sessionsToDelete.map((s: any) => s.id);
+      const result = await this.prisma.session.deleteMany({
+        where: { id: { in: ids } },
+      });
+      deletedCount = result.count;
+    }
+
+    return {
+      deletedCount,
+      schedule: options?.retentionDays ? "custom" : schedule,
+      retentionDays,
+      executedAt: new Date(),
+    };
+  }
+
+  /**
+   * Fire onSessionRevoked callback (fire-and-forget)
+   */
+  private fireSessionRevoked(event: SessionRevokedEvent): void {
+    if (this.config.onSessionRevoked) {
+      try {
+        const result = this.config.onSessionRevoked(event);
+        if (result instanceof Promise) {
+          result.catch((err) =>
+            console.error("[SessionGuard] onSessionRevoked error:", err)
+          );
+        }
+      } catch (err) {
+        console.error("[SessionGuard] onSessionRevoked error:", err);
+      }
+    }
   }
 
   /**
