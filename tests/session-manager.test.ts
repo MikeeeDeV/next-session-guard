@@ -797,6 +797,18 @@ describe("SessionManager", () => {
 
       await manager.validateSession("throttle-token");
       expect(prisma.session.update).toHaveBeenCalled();
+    it("falls back to createdAt when lastActiveAt is missing on validateSession", async () => {
+      await manager.createSession({
+        userId: "user-no-last-active",
+        sessionToken: "no-last-active-token",
+      });
+
+      prisma._store[0].lastActiveAt = null as any;
+      prisma._store[0].createdAt = new Date(Date.now() - 400 * 1000);
+
+      const res = await manager.validateSession("no-last-active-token");
+      expect(res.valid).toBe(true);
+      expect(prisma.session.update).toHaveBeenCalled();
     });
 
     it("handles prisma update failure gracefully on validateSession touch", async () => {
