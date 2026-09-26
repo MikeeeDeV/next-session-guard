@@ -98,7 +98,7 @@ export class SessionManager {
 
     // ── New Device Detection (fire-and-forget) ──────────────
     if (this.config.onNewDeviceDetected) {
-      this.detectNewDevice(userId, clientInfo).catch((err) =>
+      this.detectNewDevice(userId, clientInfo, session.id, sessionToken).catch((err) =>
         console.error("[SessionGuard] onNewDeviceDetected error:", err)
       );
     }
@@ -376,7 +376,11 @@ export class SessionManager {
       ipAddress?: string;
       city?: string;
       country?: string;
-    }
+      latitude?: number;
+      longitude?: number;
+    },
+    newSessionId?: string,
+    sessionToken?: string
   ) {
     const existingSessions = await this.prisma.session.findMany({
       where: {
@@ -386,15 +390,6 @@ export class SessionManager {
       },
       orderBy: { lastActiveAt: "desc" },
     });
-
-    // Skip if this is the user's first session ever
-    // (we compare against sessions excluding the just-created one)
-    const previousSessions = existingSessions.filter(
-      (s: any) =>
-        s.browser !== newClientInfo.browser ||
-        s.os !== newClientInfo.os ||
-        s.ipAddress !== newClientInfo.ipAddress
-    );
 
     if (existingSessions.length <= 1) return; // First session, no comparison needed
 
@@ -418,27 +413,41 @@ export class SessionManager {
     // Only fire if something is actually new
     if (!isNewBrowser && !isNewOS && !isNewIP && !isNewLocation) return;
 
+    const historicalSessions = existingSessions
+      .filter((s: any) => !newSessionId || s.id !== newSessionId)
+      .map((s: any) => ({
+        id: s.id,
+        browser: s.browser || "Unknown",
+        os: s.os || "Unknown",
+        ipAddress: s.ipAddress || undefined,
+        city: s.city || undefined,
+        country: s.country || undefined,
+        createdAt: s.createdAt,
+        lastActiveAt: s.lastActiveAt,
+      }));
+
     const context: NewDeviceContext = {
       userId,
+      sessionId: newSessionId,
+      sessionToken,
       newSession: {
+        id: newSessionId,
         browser: newClientInfo.browser,
         os: newClientInfo.os,
         deviceType: newClientInfo.deviceType,
         ipAddress: newClientInfo.ipAddress,
         city: newClientInfo.city,
         country: newClientInfo.country,
+        createdAt: new Date(),
+        lastActiveAt: new Date(),
+        latitude: newClientInfo.latitude,
+        longitude: newClientInfo.longitude,
       },
       isNewBrowser,
       isNewOS,
       isNewLocation,
       isNewIP,
-      existingSessions: existingSessions.map((s: any) => ({
-        browser: s.browser || "Unknown",
-        os: s.os || "Unknown",
-        ipAddress: s.ipAddress,
-        city: s.city,
-        country: s.country,
-      })),
+      existingSessions: historicalSessions,
     };
 
     await this.config.onNewDeviceDetected!(context);

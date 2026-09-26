@@ -48,24 +48,36 @@ export interface CacheAdapter {
  */
 export interface NewDeviceContext {
   userId: string;
+  sessionId?: string;
+  sessionToken?: string;
   newSession: {
+    id?: string;
     browser: string;
     os: string;
     deviceType: string;
     ipAddress?: string;
     city?: string;
     country?: string;
+    createdAt?: Date | string;
+    lastActiveAt?: Date | string;
+    latitude?: number;
+    longitude?: number;
   };
   isNewBrowser: boolean;
   isNewOS: boolean;
   isNewLocation: boolean;
   isNewIP: boolean;
   existingSessions: Array<{
+    id?: string;
     browser: string;
     os: string;
     ipAddress?: string;
     city?: string;
     country?: string;
+    createdAt?: Date | string;
+    lastActiveAt?: Date | string;
+    latitude?: number;
+    longitude?: number;
   }>;
 }
 

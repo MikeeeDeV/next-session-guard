@@ -20,6 +20,11 @@
       "types": "./dist/cache.d.ts",
       "import": "./dist/cache.mjs",
       "require": "./dist/cache.js"
+    },
+    "./telegram": {
+      "types": "./dist/telegram.d.ts",
+      "import": "./dist/telegram.mjs",
+      "require": "./dist/telegram.js"
     }
   },
   "files": [

@@ -68,4 +68,19 @@ export default defineConfig([
     dts: true,
     external: [],
   },
+
+  // ── Telegram Admin SOC Guard entry ──────────────────────
+  {
+    ...sharedConfig,
+    entry: { telegram: "src/telegram/index.ts" },
+    format: ["esm", "cjs"],
+    dts: true,
+    external: [
+      "react",
+      "react-dom",
+      "next",
+      "@prisma/client",
+    ],
+  },
 ]);
+
