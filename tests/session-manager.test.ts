@@ -449,6 +449,32 @@ describe("SessionManager", () => {
       expect(sessions[0].city).toBe("Cairo");
       expect(sessions[0].country).toBe("EG");
     });
+
+    it("uses default fallback values when deviceType, browser, or os are missing", async () => {
+      prisma._store.push({
+        id: "sess-raw",
+        sessionToken: "raw-token",
+        userId: "user-raw",
+        expires: new Date(Date.now() + 60000),
+        ipAddress: null,
+        userAgent: null,
+        deviceType: null as any,
+        browser: null as any,
+        os: null as any,
+        city: null,
+        country: null,
+        lastActiveAt: new Date(),
+        isRevoked: false,
+        revokedAt: null,
+        createdAt: new Date(),
+      });
+
+      const sessions = await manager.getUserSessions("user-raw");
+      expect(sessions).toHaveLength(1);
+      expect(sessions[0].deviceType).toBe("desktop");
+      expect(sessions[0].browser).toBe("Unknown Browser");
+      expect(sessions[0].os).toBe("Unknown OS");
+    });
   });
 
   // ── Cache Integration ─────────────────────────────────────
