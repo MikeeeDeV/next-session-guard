@@ -371,9 +371,9 @@ export function ActiveSessionsCard({
               <SkeletonRow />
               <SkeletonRow />
             </div>
-          ) : sessions.length === 0 ? (
+          ) : sessions.length === 0 && message?.type !== "error" ? (
             <div className="nsg-empty">{t.noSessions}</div>
-          ) : (
+          ) : sessions.length === 0 ? null : (
             sessions.map((session) => {
               const isRemoving = removingIds.has(session.id);
               const isExpanded = expandedId === session.id;
