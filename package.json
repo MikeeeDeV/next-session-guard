@@ -41,7 +41,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/next-session-guard.git"
+    "url": "https://github.com/MikeeeDeV/next-session-guard.git"
   },
   "keywords": [
     "nextjs",
