@@ -79,7 +79,7 @@ function getRequestIP(req: NextRequest): string | undefined {
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     req.headers.get("x-real-ip") ||
     req.headers.get("cf-connecting-ip") ||
-    req.ip ||
+    (req as any).ip ||
     undefined
   );
 }
@@ -91,7 +91,7 @@ function getRequestCountry(req: NextRequest): string | undefined {
   return (
     req.headers.get("x-vercel-ip-country") ||
     req.headers.get("cf-ipcountry") ||
-    req.geo?.country ||
+    (req as any).geo?.country ||
     undefined
   );
 }
