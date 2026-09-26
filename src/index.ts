@@ -12,6 +12,16 @@ export * from "./core/types";
 // UI Components
 export { ActiveSessionsCard } from "./components/ActiveSessionsCard";
 export type { ActiveSessionsCardProps, ServerActionsConfig } from "./components/ActiveSessionsCard";
+export { AdminSecurityPanel } from "./components/AdminSecurityPanel";
+export type { AdminSecurityPanelProps } from "./components/AdminSecurityPanel";
+
+// Database Adapters (Prisma, Drizzle, Memory)
+export {
+  createPrismaAdapter,
+  createMemoryAdapter,
+  createDrizzleAdapter,
+} from "./core/adapters";
+export type { DatabaseAdapter } from "./core/adapters";
 
 // App Router API Route Helpers
 export { createSessionsRouteHandlers } from "./api/route-sessions";

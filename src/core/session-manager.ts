@@ -538,37 +538,37 @@ export class SessionManager {
     const result = await this.validateSession(sessionToken);
     if (!result.valid || !result.session) return result;
 
-    const mode = this.config.hijackingProtection;
-    if (!mode) return result;
-
     const session = result.session;
+    const mode = this.config.hijackingProtection;
+    if (mode) {
 
-    if (mode === "strict" && currentIp && session.ipAddress) {
-      if (currentIp !== session.ipAddress) {
-        // IP mismatch -> possible hijack
-        await this.revokeSession({ sessionId: session.id, userId: session.userId });
-        this.fireSessionRevoked({
-          sessionId: session.id,
-          userId: session.userId,
-          sessionToken,
-          reason: "hijack_detected",
-          timestamp: new Date(),
-        });
-        return { valid: false, session: null, reason: "HIJACK_DETECTED" as const };
+      if (mode === "strict" && currentIp && session.ipAddress) {
+        if (currentIp !== session.ipAddress) {
+          // IP mismatch -> possible hijack
+          await this.revokeSession({ sessionId: session.id, userId: session.userId });
+          this.fireSessionRevoked({
+            sessionId: session.id,
+            userId: session.userId,
+            sessionToken,
+            reason: "hijack_detected",
+            timestamp: new Date(),
+          });
+          return { valid: false, session: null, reason: "HIJACK_DETECTED" as const };
+        }
       }
-    }
 
-    if (mode === "relaxed" && currentCountry && session.country) {
-      if (currentCountry.toUpperCase() !== session.country.toUpperCase()) {
-        await this.revokeSession({ sessionId: session.id, userId: session.userId });
-        this.fireSessionRevoked({
-          sessionId: session.id,
-          userId: session.userId,
-          sessionToken,
-          reason: "hijack_detected",
-          timestamp: new Date(),
-        });
-        return { valid: false, session: null, reason: "HIJACK_DETECTED" as const };
+      if (mode === "relaxed" && currentCountry && session.country) {
+        if (currentCountry.toUpperCase() !== session.country.toUpperCase()) {
+          await this.revokeSession({ sessionId: session.id, userId: session.userId });
+          this.fireSessionRevoked({
+            sessionId: session.id,
+            userId: session.userId,
+            sessionToken,
+            reason: "hijack_detected",
+            timestamp: new Date(),
+          });
+          return { valid: false, session: null, reason: "HIJACK_DETECTED" as const };
+        }
       }
     }
 

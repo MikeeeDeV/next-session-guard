@@ -1,42 +1,50 @@
 # Next-Session-Guard 🛡️
 
-> Production-ready multi-device session tracking, remote session revocation, and **Military-Grade Telegram Admin SOC Security Operations Suite** for **Next.js (App Router)** & **Prisma**.
+> Enterprise-Grade Multi-Device Session Management, Real-Time SSE Remote Revocation, Session Hijacking Defense, and **Autonomous Telegram Admin SOC Suite** for **Next.js (App Router)**, **Prisma**, and **Drizzle ORM**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14%2B%20%7C%2015%2B%20%7C%2016%2B-black?logo=next.js)](https://nextjs.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)](https://www.prisma.io/)
+[![Prisma & Drizzle](https://img.shields.io/badge/ORM-Prisma%20%7C%20Drizzle-2D3748?logo=prisma)](https://www.prisma.io/)
 [![Telegram SOC](https://img.shields.io/badge/Telegram-Admin_SOC_Guard-2CA5E0?logo=telegram&logoColor=white)](#-telegram-admin-soc-security-suite)
-[![Tests Passing](https://img.shields.io/badge/tests-164%20passed-brightgreen.svg)](tests)
+[![Realtime SSE](https://img.shields.io/badge/Realtime-SSE_Live_Kick-00C7B7?logo=fastapi&logoColor=white)](#-real-time-sse-live-browser-kick)
+[![Tests Passing](https://img.shields.io/badge/tests-215%20passed-brightgreen.svg)](tests)
 
 ---
 
 ## 🌟 What is Next-Session-Guard?
 
-Traditional authentication systems (JWTs or basic database sessions) often leave you blind to where your users are logged in, and give administrators zero interactive controls to intercept ongoing account takeovers.
+Traditional authentication libraries leave you completely blind to where your users are logged in, allow stolen tokens to linger for weeks, and lack any instant mechanism to terminate an active compromise.
 
-**Next-Session-Guard** transforms standard Next.js authentication into a high-security platform with:
-- 📱 **Multi-Device & Browser Tracking:** Auto-extracts OS, Browser, Device Type, Geolocation, and IP address.
-- 🚫 **Remote Session Revocation:** End individual device sessions or "Sign out of all other devices" in 1-click.
-- ⚡ **Sub-Millisecond Edge Blacklisting:** Edge-ready Redis & Upstash cache adapters to revoke tokens instantly before hitting the database.
-- 🎨 **Drop-in React Component (`<ActiveSessionsCard />`):** Dark/Light mode, multi-language (English & Arabic RTL).
-- 🛡️ **Military-Grade Telegram Admin SOC Suite (`next-session-guard/telegram`):** An autonomous Security Operations Center running directly inside your private Telegram Admin Group.
+**Next-Session-Guard** elevates your authentication stack to **Enterprise Military-Grade Security**:
+
+- 📱 **Multi-Device & Geolocation Tracking:** Automatically extracts OS, Browser, Device Type, IP, City, Country, and Lat/Long coordinates with zero external dependencies.
+- ⚡ **Real-Time Live Browser Kick (SSE):** Remotely revoke any session from the admin panel or Telegram, and the attacker's open browser tab is **immediately locked and redirected to `/login` without waiting for page refreshes**.
+- 🛡️ **Session Hijacking Protection (Fingerprint Binding):** Verifies request IP and geo-location against stored session signatures in middleware; auto-revokes compromised tokens instantly in **Strict (IP)** or **Relaxed (Country)** modes.
+- 🔄 **Sliding Token Auto-Rotation:** Automatically cycles and renews session tokens during active use (e.g. every 24h) and blacklists old tokens at the Edge to defeat token leakage.
+- 🧹 **Database Garbage Collection:** Built-in pruning engine with presets (**Monthly [30d]**, **Semi-Annual [180d]**, **Annual [365d]**, or **Manual**) to keep your database fast and lightweight.
+- 🎛️ **Full GUI Admin SOC Dashboard (`<AdminSecurityPanel />`):** Interactive Security Operations Center GUI to inspect live sessions, tune security settings, run database cleanup, and simulate cyber attacks.
+- 🎮 **Ready-to-Run Interactive Playground (`examples/playground`):** Test everything out-of-the-box with `cd examples/playground && npm run dev` (zero database setup required).
+- 🗄️ **Universal Database Adapters:** Native support for **Prisma ORM**, **Drizzle ORM**, and high-speed **In-Memory** testing stores.
+- 🤖 **Optional Telegram Admin SOC Suite (`next-session-guard/telegram`):** Private admin group lockdown, kinetic travel anomaly math (Mach velocity), compact 64-byte HMAC Action Vault, and Honeypot Ghost Mode.
 
 ---
 
-## 🇸🇦 نبذة باللغة العربية
+## 🇸🇦 نبذة شاملة باللغة العربية
 
-مكتبة **Next-Session-Guard** تقدم حلاً أمنياً متكاملاً لإدارة الجلسات في تطبيقات **Next.js** مع **Prisma**:
-1. **تتبع الأجهزة والنشاط:** رصد تفصيلي لنوع الجهاز (حاسوب، هاتف، تابلت)، المتصفح، نظام التشغيل، الـ IP، والموقع الجغرافي.
-2. **إنهاء الجلسات عن بُعد:** إمكانية طرد أي جهاز بضغطة زر وتحديث الكاش لحظياً لمنع استخدام التوكن في الميدلوير.
-3. **غرفة عمليات أمنية عبر تيليجرام (Admin SOC Suite):**
-   - حصر صارم في **جروب الإدارة الخاص** فقط لمنع أي وصول غير مصرح به.
-   - كشف **السفر المستحيل فيزيائياً (Kinetic Impossible Travel)** بحساب المسافة والسرعة بمعادلة هافرسين.
-   - تقييم المخاطر التلقائي من 0 إلى 100 (**Dynamic Risk Scoring**).
-   - خزان الأوامر المشفر المضغوط (**Action Vault**) لحل معضلة حد الـ 64 بايت في تيليجرام ومنع هجمات التكرار (Replay Attacks).
-   - مكوك الطوارئ ضد الإغراق (**Incident Damper**) لتجميع الهجمات ومنع حظر البوت والـ Alert Fatigue.
-   - مصيدة الجلسات الشبحية (**Ghost / Honeypot Mode**) لمراقبة المخترق سراً وجمع الأدلة.
-   - نظام **الموافقة الثنائية للأدمنز (Dual-Admin Quorum)** للعمليات الحساسة (مثل تجميد المستخدم).
+مكتبة **Next-Session-Guard** هي نظام أمني متكامل لإدارة وتحصين جلسات المستخدمين في تطبيقات **Next.js** مع دعم **Prisma** و **Drizzle ORM**:
+
+1. **تتبع الأجهزة والمواقع جغرافياً:** استخراج تلقائي لنظام التشغيل، المتصفح، الـ IP، والبلد مع أعلام الدول ومؤشرات النشاط اللحظي.
+2. **الطرد اللحظي الحي عبر المتصفح (Realtime SSE Kick):** عند طرد أي جلسة من لوحة الإدارة أو التيليجرام، يتم إغلاق شاشة المتصفح فوراً وتوجيهه لصفحة تسجيل الدخول **دون انتظار أن يقوم المستخدم بعمل Refresh**.
+3. **الحماية من اختطاف الجلسات (Session Hijacking Guard):** فحص ومطابقة IP أو بلد المستخدم في الميدلوير؛ إذا تم استخدام التوكن من شبكة أو موقع مختلف يتم إبطال الجلسة فوراً بنمطين:
+   - **النمط الصارم (Strict):** مطابقة الـ IP حرفياً (تطبيقات البنوك والأنظمة المالية).
+   - **النمط المرن (Relaxed):** مطابقة بلد المستخدم (مناسب لمستخدمي الهواتف الذين تتغير شبكاتهم باستمرار).
+4. **التدوير التلقائي للتوكن (Token Auto-Rotation):** تجديد توكن الجلسة تلقائياً كل فترة محددة (مثل 24 ساعة) وحظر التوكن القديم لمنع استغلال التسريبات.
+5. **جدول تنظيف قاعدة البيانات (Garbage Collector):** محرك تنظيف دوري مدمج يدعم جداول: **شهري (30 يوماً)**، **نصف سنوي (180 يوماً)**، **سنوي (365 يوماً)**، أو **يدوياً** بعدد أيام مخصص مع إمكانية التنفيذ المباشر من واجهة المستخدم (GUI).
+6. **لوحة تحكم أمنية كاملة بواجهة رسومية (`<AdminSecurityPanel />`):** لوحة عمليات أمنية (SOC) رسومية جاهزة لإدارة الجلسات، تعديل الإعدادات، ومختبر لمحاكاة الهجمات واختبار الرد الآلي.
+7. **تطبيق تجريبي عملي جاهز للتشغيل (`examples/playground`):** يمكنك تجربة كل شيء عملياً فوراً بكتابة `cd examples/playground && npm run dev`.
+8. **دعم متعدد لقواعد البيانات (Multi-ORM):** دعم رسمي لـ **Prisma** و **Drizzle ORM** ومحول الذاكرة **MemoryAdapter**.
+9. **غرفة عمليات تيليجرام الأمنية (Telegram Admin SOC):** كشف السفر المستحيل فيزيائياً، نظام HMAC المشفر للحد من 64 بايت، مانع إغراق الإشعارات، ووضع الشبح (Honeypot).
 
 ---
 
@@ -51,36 +59,47 @@ yarn add next-session-guard
 ```
 
 ### Peer Dependencies
-Ensure you have the required peer dependencies installed:
 ```bash
 npm install @prisma/client next react react-dom lucide-react
 ```
 
-### 🧩 100% Modular Architecture (Telegram is Completely Optional)
-The core library has **zero dependencies on Telegram**:
-- **Without Telegram (Core Mode):** Use `next-session-guard` for device tracking, concurrent session limits, and UI components. Nothing related to Telegram is ever imported or executed.
-- **With Telegram (Admin SOC Mode):** Opt-in by importing specifically from `next-session-guard/telegram`.
+### 🧩 100% Modular Architecture (Zero Bloat)
+The library is structured into completely independent, tree-shakable subpaths:
 
-| Import Path | Purpose | Overhead / Dependencies |
+| Import Path | Description | External Dependencies |
 | :--- | :--- | :--- |
-| `next-session-guard` | Core Session Manager, Middleware, UA Parser, UI Card | Standard (~52 KB, zero external network calls) |
-| `next-session-guard/actions` | Next.js Server Actions for session revocation | Standalone Next.js Server Actions |
-| `next-session-guard/cache` | Redis / Upstash Edge blacklist adapters | Optional Cache Adapter |
-| `next-session-guard/telegram` | Telegram Admin SOC, Webhook & Kinetic Threat Engine | **100% Opt-in** (isolated subpath) |
+| `next-session-guard` | Core Manager, Multi-ORM Adapters, `<ActiveSessionsCard />`, `<AdminSecurityPanel />` | Zero network overhead |
+| `next-session-guard/realtime` | Server-Sent Events (SSE) Hub, browser live kick bridge, reconnect handlers | Zero dependencies |
+| `next-session-guard/actions` | Next.js Server Actions for session fetching and revocation | Next.js runtime |
+| `next-session-guard/cache` | Edge-ready Redis & Upstash token blacklisting adapters | Optional Redis/Upstash |
+| `next-session-guard/telegram` | Telegram Admin SOC, Kinetic Travel, HMAC Action Vault | **100% Opt-in** subpath |
 
 ---
 
-## 🗄️ 1. Prisma Schema Setup
+## 🎮 1. Ready-to-Run Interactive Playground
 
-Add the required session fields to your `prisma/schema.prisma`:
+Experience the entire system in action in less than 10 seconds:
+
+```bash
+# From the repository root:
+npm run build
+cd examples/playground
+npm run dev
+```
+
+Open your browser:
+- 📱 **User Active Sessions & SSE Kick Listener:** [http://localhost:3000](http://localhost:3000)
+- 🛡️ **Admin Security Operations Center (SOC) & Attack Simulator:** [http://localhost:3000/admin](http://localhost:3000/admin)
+
+---
+
+## 🗄️ 2. Database Adapters (Prisma & Drizzle ORM)
+
+### Option A: Prisma ORM
+
+Add the session fields to `prisma/schema.prisma`:
 
 ```prisma
-model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  sessions  Session[]
-}
-
 model Session {
   id           String    @id @default(cuid())
   sessionToken String    @unique
@@ -91,7 +110,7 @@ model Session {
   ipAddress    String?
   userAgent    String?   @db.Text
   deviceType   String?   // "desktop" | "mobile" | "tablet" | "unknown"
-  browser      String?   // "Chrome" | "Safari" | "Firefox" | "Edge" | etc.
+  browser      String?   // "Chrome" | "Safari" | "Firefox" | "Edge"
   os           String?   // "Windows" | "macOS" | "iOS" | "Android" | "Linux"
   city         String?   // e.g. "Cairo"
   country      String?   // e.g. "EG"
@@ -99,219 +118,295 @@ model Session {
   isRevoked    Boolean   @default(false)
   revokedAt    DateTime?
   createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, isRevoked])
+  @@index([userId])
   @@index([sessionToken])
 }
 ```
 
-Push schema updates to your database:
-```bash
-npx prisma db push
+Initialize `SessionManager`:
+```typescript
+import { prisma } from "@/lib/prisma";
+import { SessionManager } from "next-session-guard";
+
+export const sessionManager = new SessionManager(prisma, {
+  maxConcurrentSessions: 5,
+  hijackingProtection: "strict", // "strict" | "relaxed" | false
+  tokenRotationIntervalSeconds: 86400, // Rotate token every 24 hours
+});
+```
+
+### Option B: Drizzle ORM
+
+```typescript
+import { db } from "@/db";
+import { sessions } from "@/db/schema";
+import { SessionManager, createDrizzleAdapter } from "next-session-guard";
+
+const adapter = createDrizzleAdapter(db, sessions);
+export const sessionManager = new SessionManager(adapter, {
+  maxConcurrentSessions: 5,
+});
+```
+
+### Option C: High-Speed In-Memory Adapter (Testing / Edge)
+
+```typescript
+import { SessionManager, createMemoryAdapter } from "next-session-guard";
+
+const memoryAdapter = createMemoryAdapter();
+export const sessionManager = new SessionManager(memoryAdapter);
 ```
 
 ---
 
-## 🛡️ Telegram Admin SOC Security Suite
+## 📡 3. Real-Time SSE Live Browser Kick
 
-The `next-session-guard/telegram` module turns a private Telegram group into an interactive, zero-latency Security Operations Center.
+Eliminates the vulnerability where revoked sessions remain active until the user refreshes or navigates. When kicked from the Admin Panel or Telegram, the user's open tab is **instantly terminated**.
 
-### Key Innovations:
+### Step 1: Create the SSE API Route
+Create `app/api/sessions/sse/route.ts`:
 
-| Innovation | What It Does | Why It's Critical |
-| :--- | :--- | :--- |
-| **Strict Group Lockdown** | Rejects any message or callback outside `adminGroupId`. | Guarantees external users or unauthorized chats cannot trigger actions. |
-| **Compact Action Vault** | Encodes actions in ~16 bytes with HMAC-SHA256 & 15m TTL. | Defeats Telegram's 64-byte `callback_data` limit & blocks Replay Attacks. |
-| **Kinetic Impossible Travel 2.0** | Calculates real km distance & speed via Haversine formula. | Flags supersonic physical leaps (e.g. 2,800 km in 10 mins = 16,800 km/h!). |
-| **Dynamic Threat Scoring** | Analyzes Device, OS, IP, Cloud ASN & Location (0-100 score). | Categorizes incidents into `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`. |
-| **Incident Damper (Anti-Flood)** | Collapses rapid login spikes into a single live-updating card. | Prevents Telegram 429 rate limit bans and eliminates Alert Fatigue. |
-| **Ghost Honeypot Mode** | Tags sessions for mock data/forensics without alerting attacker. | Allows observing hacker behavior silently instead of hard disconnect. |
-| **Dual-Admin Quorum** | Requires 2 separate admins to approve destructive operations. | Prevents accidental or rogue account suspensions (`suspend_user`). |
+```typescript
+import { getSSEHub } from "next-session-guard/realtime";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get("userId"); // Authenticated user ID
+
+  return getSSEHub().createStreamResponse(userId);
+}
+```
+
+### Step 2: Bridge Session Revocations to SSE
+Attach the SSE bridge to your `SessionManager`:
+
+```typescript
+import { getSSEHub, createSSERevocationBridge } from "next-session-guard/realtime";
+
+const sseHub = getSSEHub();
+const sseBridge = createSSERevocationBridge(sseHub);
+
+export const sessionManager = new SessionManager(prisma, {
+  onSessionRevoked: (event) => {
+    // Broadcast live revocation frame to all active browser windows!
+    sseBridge(event);
+  },
+});
+```
+
+### Step 3: Listen in the Browser
+```tsx
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export function useLiveRevocationGuard(userId: string) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const es = new EventSource(`/api/sessions/sse?userId=${userId}`);
+    es.addEventListener("session_revoked", () => {
+      // Instant logout redirect
+      router.push("/login?reason=session_revoked_remotely");
+    });
+    return () => es.close();
+  }, [userId, router]);
+}
+```
 
 ---
 
-### Step-by-Step Telegram Setup Guide
+## 🛡️ 4. Session Hijacking Protection (Fingerprint Binding)
 
-#### 1. Create a Bot with @BotFather
-1. Open Telegram and search for [@BotFather](https://t.me/BotFather).
-2. Send `/newbot`, choose a name and username (e.g., `MyCompanySecurityBot`).
-3. Copy your **Bot API Token** (e.g., `7123456789:AAH...`).
-
-#### 2. Create your Private Admin Group & Get Chat ID
-1. Create a new private Telegram Group (e.g., `SOC Security Room`).
-2. Add your bot to the group and make it an **Administrator**.
-3. Send a test message in the group.
-4. Retrieve the Group Chat ID (starts with `-100...`) by visiting:
-   ```
-   https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates
-   ```
-   Look for `"chat":{"id":-100xxxxxxxxxx}`.
-
-#### 3. Attach Telegram Guard to `SessionManager`
-
-In your server-side session configuration (`lib/session-manager.ts`):
+Stop token-theft attacks at the Edge:
 
 ```typescript
-import { SessionManager } from "next-session-guard";
-import { createTelegramAdminGuard } from "next-session-guard/telegram";
-import { prisma } from "@/lib/prisma";
+export const sessionManager = new SessionManager(prisma, {
+  // "strict": Request IP must match session IP (Fintech, Banking, Healthcare)
+  // "relaxed": Country must match (Mobile-friendly, allows WiFi-to-cellular handover)
+  // false: Disabled
+  hijackingProtection: "strict",
+});
+```
 
-// 1. Initialize the Telegram Admin Guard
+In your Next.js `middleware.ts`:
+```typescript
+import { NextRequest } from "next/server";
+import { sessionGuardMiddleware } from "next-session-guard";
+
+export async function middleware(request: NextRequest) {
+  return sessionGuardMiddleware(request, {
+    sessionTokenCookieName: "next-auth.session-token",
+    loginUrl: "/login",
+    hijackingProtection: "strict",
+    validateWithDb: async (token, ip, country) => {
+      const result = await sessionManager.validateSessionWithHijackProtection(token, ip, country);
+      return result.valid;
+    },
+  });
+}
+```
+
+---
+
+## 🧹 5. Scheduled Database Garbage Collection
+
+Prevent session tables from growing unchecked with preset pruning policies:
+
+```typescript
+// 1. Monthly Cleanup (Delete sessions older than 30 days)
+await sessionManager.cleanupExpiredSessions({ schedule: "monthly" });
+
+// 2. Semi-Annual Cleanup (Delete sessions older than 180 days)
+await sessionManager.cleanupExpiredSessions({ schedule: "semi-annual" });
+
+// 3. Annual Cleanup (Delete sessions older than 365 days)
+await sessionManager.cleanupExpiredSessions({ schedule: "annual" });
+
+// 4. Custom Manual Retention
+await sessionManager.cleanupExpiredSessions({
+  schedule: "manual",
+  retentionDays: 45,
+  revokedOnly: true, // Only purge revoked sessions, keep natural expirations
+  batchSize: 5000,   // Prevent database transaction locks
+});
+```
+
+### Automated Vercel / Node.js Cron Route
+Create `app/api/cron/cleanup/route.ts`:
+```typescript
+import { NextResponse } from "next/server";
+import { sessionManager } from "@/lib/session";
+
+export async function GET(req: Request) {
+  // Verify CRON_SECRET header from Vercel or cloud scheduler
+  const authHeader = req.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  const result = await sessionManager.cleanupExpiredSessions({ schedule: "monthly" });
+  return NextResponse.json({ success: true, result });
+}
+```
+
+---
+
+## 🔄 6. Sliding Token Auto-Rotation
+
+Prevent replay attacks by periodically rotating session tokens:
+
+```typescript
+export const sessionManager = new SessionManager(prisma, {
+  // Regenerate token every 24 hours of active usage
+  tokenRotationIntervalSeconds: 86400,
+});
+```
+
+When validating sessions, `validateSessionWithHijackProtection` automatically issues a fresh token and blacklists the retired token.
+
+---
+
+## 🎛️ 7. Admin Security Operations Center (SOC) GUI
+
+Drop the enterprise `<AdminSecurityPanel />` into your admin portal:
+
+```tsx
+import { AdminSecurityPanel } from "next-session-guard";
+
+export default function AdminPage() {
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <AdminSecurityPanel
+        title="Session Security Operations Center"
+        locale="en" // or "ar" for Arabic
+        sseEndpoint="/api/sessions/sse"
+        apiEndpoints={{
+          getSessions: "/api/sessions",
+          revokeSession: "/api/sessions",
+          cleanup: "/api/admin/cleanup",
+        }}
+      />
+    </div>
+  );
+}
+```
+
+### What You Get in the GUI:
+- 📊 **Real-time Metrics:** Live active sessions, stopped hijack attempts, auto-rotations count, and SSE connection pulse.
+- 💻 **Active Sessions Inspector:** Geo-flags, device badges, IP inspection, and 1-click **Live Remote Kick**.
+- ⚙️ **Visual Settings Studio:** Toggle Hijacking Protection, change Token Rotation intervals, select Garbage Collection schedules, and trigger **Run Cleanup Now** with live count feedback.
+- 🧪 **Interactive Cyber Simulation Lab:** Test IP Hijacking detection, simulate Impossible Travel math, test Token Auto-Rotation, and fire SSE Live Kicks with live terminal audit logs.
+
+---
+
+## 🤖 8. Telegram Admin SOC Security Suite
+
+Run a private Security Operations Center right inside your Telegram admin group:
+
+```typescript
+import { createTelegramAdminGuard } from "next-session-guard/telegram";
+
 export const adminGuard = createTelegramAdminGuard({
   botToken: process.env.TELEGRAM_BOT_TOKEN!,
-  adminGroupId: process.env.TELEGRAM_ADMIN_GROUP_ID!, // e.g. "-1001234567890"
-  threadId: process.env.TELEGRAM_THREAD_ID ? Number(process.env.TELEGRAM_THREAD_ID) : undefined, // Optional forum topic
-  secretToken: process.env.TELEGRAM_WEBHOOK_SECRET, // Recommended for webhook security
-  minRiskScore: 30, // Send alerts for medium, high, and critical threats (0-100)
+  adminGroupId: process.env.TELEGRAM_ADMIN_GROUP_ID!,
+  secretToken: process.env.TELEGRAM_WEBHOOK_SECRET,
+  minRiskScore: 40, // Ignore low-risk alerts
   enableKineticTravel: true,
   enableIncidentDamper: true,
-  dualAdminQuorumActions: ["suspend_user", "revoke_all"],
-  
-  // Optional: Custom handler when an admin clicks "Suspend User"
-  onSuspendUser: async (userId, admin) => {
-    console.log(`User ${userId} suspended by @${admin.username}`);
-    // e.g. await prisma.user.update({ where: { id: userId }, data: { isSuspended: true } });
-  },
 });
 
-// 2. Pass listener to SessionManager
 export const sessionManager = new SessionManager(prisma, {
-  maxConcurrentSessions: 5,
   onNewDeviceDetected: adminGuard.onNewDeviceDetected,
 });
 ```
 
----
-
-#### 4. Setup the Interactive Telegram Webhook Route
-
-Create the webhook route handler in your Next.js App Router:
-`app/api/telegram-webhook/route.ts`
-
+### Webhook Route (`app/api/telegram/webhook/route.ts`):
 ```typescript
 import { createTelegramAdminWebhookHandler } from "next-session-guard/telegram";
-import { sessionManager } from "@/lib/session-manager";
+import { sessionManager, adminGuard } from "@/lib/session";
 
 export const POST = createTelegramAdminWebhookHandler({
+  config: {
+    botToken: process.env.TELEGRAM_BOT_TOKEN!,
+    adminGroupId: process.env.TELEGRAM_ADMIN_GROUP_ID!,
+    secretToken: process.env.TELEGRAM_WEBHOOK_SECRET,
+    actionSecret: process.env.TELEGRAM_ACTION_SECRET,
+  },
   sessionManager,
-  botToken: process.env.TELEGRAM_BOT_TOKEN!,
-  adminGroupId: process.env.TELEGRAM_ADMIN_GROUP_ID!,
-  secretToken: process.env.TELEGRAM_WEBHOOK_SECRET,
-  // Whitelist specific admin user IDs (optional):
-  // allowedAdminUserIds: [123456789, 987654321],
+  vault: adminGuard.vault,
 });
 ```
 
-#### 5. Register your Webhook with Telegram
-Once deployed to your domain (or via tunneling during dev):
-```bash
-curl -X POST "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://your-domain.com/api/telegram-webhook",
-    "secret_token": "your_secure_random_string_here"
-  }'
-```
+### Key SOC Inventions:
+- 🔒 **Admin Group Lockdown:** Strictly ignores and rejects any messages or button callbacks outside your configured `adminGroupId`.
+- ✈️ **Kinetic Impossible Travel:** Uses spherical trigonometry (Haversine Formula) to calculate physical velocity between consecutive logins. Velocity exceeding commercial air travel (950 km/h) automatically flags an anomaly with calculated Mach speed.
+- 🔐 **64-Byte HMAC Action Vault:** Solves Telegram's strict 64-byte `callback_data` limit by compressing action intents into cryptographically signed, short-lived tokens protected against replay attacks.
+- 🌊 **Incident Damper (Anti-Flood):** Collapses credential stuffing and botnet bursts into a single live-updating alert card to prevent alert fatigue and Telegram rate limits.
+- 👻 **Ghost / Honeypot Mode:** Tag a suspicious session as a ghost to silently trace attacker actions while withholding sensitive administrative powers.
 
 ---
 
-### Telegram Interactive Incident Card Example
+## 🎨 9. User-Facing React Component (`<ActiveSessionsCard />`)
 
-When a suspicious login occurs, the admin group instantly receives:
-
-```
-🛡️ [NextSessionGuard Security Incident]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 User: usr_8923a1 (john@example.com)
-💻 Device: Chrome on Windows 11 (desktop)
-📍 Location: 🇩🇪 Frankfurt, Germany (IP: 142.250.190.46)
-⏰ Detected At: 2026-09-26T12:35:10.000Z
-
-⚠️ Threat Assessment: 🔴 CRITICAL (Level 4/4)
-📊 Risk Score: 90/100 [██████████ 90%+]
-
-Incident Factors:
-• 🚀 Impossible Travel: 2,850 km at ~14,250 km/h (Cairo, Egypt ➔ Frankfurt, Germany)
-• 🏢 Datacenter/Hosting provider IP: Google Cloud
-• 🌐 New browser detected: Chrome
-
-⚡ PHYSICAL ANOMALY:
-🚀 Impossible Travel: 2,850 km in 12 mins (~14,250 km/h). Faster than commercial airliner!
-
-[ 🛑 Revoke Session ]     [ 👻 Ghost Mode ]
-[ 👥 Kill All User Sessions ]  [ ⛔ Suspend User ]
-[ ✅ Dismiss Alert ]
-```
-
-### Admin Group Chat Commands
-
-Authorized admins can also type commands directly in the group:
-- `/status` or `/stats` — Displays current SOC health, lockdown state, and modules.
-- `/revoke <sessionId>` — Revokes a specific session immediately.
-- `/killall <userId>` — Terminates all active sessions for a target user.
-
----
-
-## 💻 2. Standard Session Management Usage
-
-### Creating Sessions on Login
-```typescript
-import { sessionManager } from "@/lib/session-manager";
-
-export async function handleLogin(req: Request, user: { id: string }) {
-  const session = await sessionManager.createSession({
-    userId: user.id,
-    req, // automatically extracts IP, User-Agent, City, Country
-  });
-
-  return session.sessionToken;
-}
-```
-
-### Validating Sessions in Middleware
-```typescript
-// middleware.ts
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { sessionGuardMiddleware } from "next-session-guard";
-import { UpstashRedisAdapter } from "next-session-guard/cache";
-
-const cache = new UpstashRedisAdapter({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
-
-export const middleware = sessionGuardMiddleware({
-  cookieName: "session-token",
-  cacheAdapter: cache,
-  loginUrl: "/login",
-  publicPaths: ["/login", "/register", "/api/auth", "/api/telegram-webhook"],
-});
-
-export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
-};
-```
-
----
-
-## 🎨 3. Drop-in UI Component (`<ActiveSessionsCard />`)
-
-Drop this component into your account settings page:
+Drop this component into your user account settings page:
 
 ```tsx
 import { ActiveSessionsCard } from "next-session-guard";
 
-export default function SecurityPage() {
+export default function AccountSecurityPage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
-      {/* English */}
-      <ActiveSessionsCard locale="en" />
-
-      {/* Or Arabic with native RTL layout */}
-      {/* <ActiveSessionsCard locale="ar" /> */}
+      <ActiveSessionsCard
+        locale="en" // or "ar" for Arabic RTL
+        sessionsApiEndpoint="/api/sessions"
+        revokeOthersApiEndpoint="/api/sessions/revoke-others"
+      />
     </div>
   );
 }
@@ -319,18 +414,18 @@ export default function SecurityPage() {
 
 ---
 
-## 🧪 Testing
+## 🧪 Comprehensive Test Suite
 
-The repository comes with a comprehensive Vitest test suite covering **164 automated unit & integration tests**:
+Next-Session-Guard is battle-tested with **215 automated unit & integration tests** across 18 test files:
 
 ```bash
-# Run all tests once
+# Run all tests
 npm test
 
-# Run tests in interactive watch mode
+# Run tests in watch mode
 npm run test:watch
 
-# Run tests with code coverage report
+# Generate coverage report
 npm run coverage
 ```
 
@@ -340,33 +435,37 @@ npm run coverage
 
 ```
 next-session-guard/
+├── examples/
+│   └── playground/                # 🎮 Complete ready-to-run Next.js demo app
 ├── prisma/
 │   └── schema.prisma              # Database Session schema
 ├── src/
 │   ├── actions/                   # Next.js Server Actions
-│   ├── api/                       # App Router API route handlers
+│   ├── api/                       # App Router API route helpers
 │   ├── cache/                     # Redis & Upstash Edge cache adapters
-│   ├── components/                # <ActiveSessionsCard /> React UI
+│   ├── components/
+│   │   ├── ActiveSessionsCard.tsx # User-facing session list component
+│   │   └── AdminSecurityPanel.tsx # 🎛️ Full SOC Admin Dashboard GUI
 │   ├── core/
-│   │   ├── session-manager.ts     # Core session engine
+│   │   ├── adapters.ts            # Multi-ORM adapters (Prisma, Drizzle, Memory)
+│   │   ├── session-manager.ts     # Core engine (Rotation, Hijacking, GC)
 │   │   ├── ua-parser.ts           # Zero-dependency OS/Browser/IP parser
-│   │   └── types.ts               # Core types
+│   │   └── types.ts               # Core TypeScript definitions
 │   ├── middleware/                # Edge/Node session guard middleware
+│   ├── realtime/                  # 📡 Real-time SSE Hub & Live Kick bridge
 │   └── telegram/                  # 🛡️ Telegram Admin SOC Security Suite
-│       ├── action-vault.ts        # Ephemeral 64-byte safe HMAC vault
+│       ├── action-vault.ts        # 64-byte HMAC safe vault
 │       ├── ghost-mode.ts          # Honeypot / Ghost session tagging
 │       ├── incident-damper.ts     # Anti-flood attack aggregator
-│       ├── kinetic-travel.ts      # Haversine distance & speed calculator
+│       ├── kinetic-travel.ts      # Haversine distance & velocity math
 │       ├── notifier.ts            # Telegram Bot API formatting & cards
 │       ├── risk-engine.ts         # Dynamic threat scoring (0-100)
-│       ├── types.ts               # SOC types & config
-│       ├── webhook.ts             # Strict lockdown webhook POST handler
-│       └── index.ts               # Telegram module entry point
-└── tests/                         # 164 unit & integration tests
+│       └── webhook.ts             # Strict lockdown webhook POST handler
+└── tests/                         # 215 automated unit & integration tests
 ```
 
 ---
 
 ## 📄 License
 
-Distributed under the **MIT License**.
+Distributed under the **MIT License**. Created by **Mohamed Ayman**.
