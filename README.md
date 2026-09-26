@@ -9,6 +9,32 @@
 [![Telegram SOC](https://img.shields.io/badge/Telegram-Admin_SOC_Guard-2CA5E0?logo=telegram&logoColor=white)](#-telegram-admin-soc-security-suite)
 [![Realtime SSE](https://img.shields.io/badge/Realtime-SSE_Live_Kick-00C7B7?logo=fastapi&logoColor=white)](#-real-time-sse-live-browser-kick)
 [![Tests Passing](https://img.shields.io/badge/tests-215%20passed-brightgreen.svg)](tests)
+[![npm version](https://img.shields.io/npm/v/next-session-guard.svg)](https://www.npmjs.com/package/next-session-guard)
+[![npm downloads](https://img.shields.io/npm/dm/next-session-guard.svg)](https://www.npmjs.com/package/next-session-guard)
+[![GitHub stars](https://img.shields.io/github/stars/MikeeeDeV/next-session-guard?style=social)](https://github.com/MikeeeDeV/next-session-guard/stargazers)
+
+> ⭐ **If this project helps you, please consider starring the repo — it takes 2 seconds and helps a lot!**
+
+---
+
+### 📚 Table of Contents
+
+- [What is Next-Session-Guard?](#-what-is-next-session-guard)
+- [نبذة شاملة باللغة العربية](#-نبذة-شاملة-باللغة-العربية)
+- [Installation](#-installation)
+- [Ready-to-Run Playground](#-1-ready-to-run-interactive-playground)
+- [Database Adapters](#️-2-database-adapters-prisma--drizzle-orm)
+- [Real-Time SSE Live Browser Kick](#-3-real-time-sse-live-browser-kick)
+- [Session Hijacking Protection](#️-4-session-hijacking-protection-fingerprint-binding)
+- [Scheduled Database Garbage Collection](#-5-scheduled-database-garbage-collection)
+- [Sliding Token Auto-Rotation](#-6-sliding-token-auto-rotation)
+- [Admin SOC GUI](#️-7-admin-security-operations-center-soc-gui)
+- [Telegram Admin SOC Suite](#-8-telegram-admin-soc-security-suite)
+- [User-Facing Component](#-9-user-facing-react-component-activesessionscard-)
+- [Test Suite](#-comprehensive-test-suite)
+- [Repository Structure](#-repository-structure)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
@@ -27,6 +53,20 @@ Traditional authentication libraries leave you completely blind to where your us
 - 🎮 **Ready-to-Run Interactive Playground (`examples/playground`):** Test everything out-of-the-box with `cd examples/playground && npm run dev` (zero database setup required).
 - 🗄️ **Universal Database Adapters:** Native support for **Prisma ORM**, **Drizzle ORM**, and high-speed **In-Memory** testing stores.
 - 🤖 **Optional Telegram Admin SOC Suite (`next-session-guard/telegram`):** Private admin group lockdown, kinetic travel anomaly math (Mach velocity), compact 64-byte HMAC Action Vault, and Honeypot Ghost Mode.
+
+---
+
+## 🎬 Demo
+
+<!--
+  ضيفي هنا صورة أو GIF قصير للموقع وهو شغال (من الـ playground على جهازك).
+  مثال بعد ما ترفعي الصورة على الريبو:
+  ![Demo](./docs/demo.gif)
+-->
+
+| User: Active Sessions | Admin: SOC Panel |
+| :---: | :---: |
+| *screenshot coming soon* | *screenshot coming soon* |
 
 ---
 
@@ -463,6 +503,26 @@ next-session-guard/
 │       └── webhook.ts             # Strict lockdown webhook POST handler
 └── tests/                         # 215 automated unit & integration tests
 ```
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+1. Fork the repo
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+If you find a bug or have an idea, feel free to [open an issue](https://github.com/MikeeeDeV/next-session-guard/issues).
+
+---
+
+## ⭐ Show Your Support
+
+If **Next-Session-Guard** saved you time or made your app more secure, please give it a ⭐ on GitHub — it really helps the project grow and reach more developers!
 
 ---
 
