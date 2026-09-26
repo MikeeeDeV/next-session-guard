@@ -245,6 +245,17 @@ export class SessionManager {
         .catch((err) => console.error("[SessionGuard] Cache blacklist error:", err));
     }
 
+    // Fire revocation event
+    if (result.count > 0) {
+      this.fireSessionRevoked({
+        sessionId,
+        userId,
+        sessionToken: session.sessionToken,
+        reason: "user_revoke",
+        timestamp: new Date(),
+      });
+    }
+
     return result.count > 0;
   }
 
@@ -292,6 +303,16 @@ export class SessionManager {
       ).catch((err) => console.error("[SessionGuard] Cache blacklist error:", err));
     }
 
+    // Fire revocation events for each revoked session
+    if (result.count > 0) {
+      this.fireSessionRevoked({
+        sessionId: "batch",
+        userId,
+        reason: "user_revoke",
+        timestamp: new Date(),
+      });
+    }
+
     return result.count;
   }
 
@@ -326,6 +347,16 @@ export class SessionManager {
       Promise.allSettled(
         tokensToBlacklist.map((token) => this.config.cacheAdapter!.blacklist(token))
       ).catch((err) => console.error("[SessionGuard] Cache blacklist error:", err));
+    }
+
+    // Fire revocation event
+    if (result.count > 0) {
+      this.fireSessionRevoked({
+        sessionId: "all",
+        userId,
+        reason: "all_revoked",
+        timestamp: new Date(),
+      });
     }
 
     return result.count;
