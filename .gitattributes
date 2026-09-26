@@ -1,0 +1,4 @@
+# GitHub Linguist Overrides
+coverage/** linguist-vendored
+*.html linguist-documentation
+examples/** linguist-documentation
