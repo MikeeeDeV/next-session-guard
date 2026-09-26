@@ -105,6 +105,13 @@ describe("parseClientInfo", () => {
     expect(result.deviceType).toBe("desktop");
   });
 
+  it("detects older Windows versions", () => {
+    expect(parseClientInfo("Mozilla/5.0 (Windows NT 6.3)").os).toBe("Windows 8.1");
+    expect(parseClientInfo("Mozilla/5.0 (Windows NT 6.2)").os).toBe("Windows 8");
+    expect(parseClientInfo("Mozilla/5.0 (Windows NT 6.1)").os).toBe("Windows 7");
+    expect(parseClientInfo("Mozilla/5.0 (Windows; U; Windows NT 5.1)").os).toBe("Windows");
+  });
+
   it("handles empty user-agent string", () => {
     const result = parseClientInfo("");
     expect(result.browser).toBe("Unknown Browser");
@@ -188,6 +195,11 @@ describe("extractClientIp", () => {
   it("handles plain object with array values", () => {
     const headers = { "x-forwarded-for": ["9.9.9.9", "8.8.8.8"] };
     expect(extractClientIp(headers)).toBe("9.9.9.9");
+  });
+
+  it("handles plain object with empty array", () => {
+    const headers = { "x-forwarded-for": [] };
+    expect(extractClientIp(headers as any)).toBe("127.0.0.1");
   });
 });
 
