@@ -245,7 +245,7 @@ describe("Token Rotation", () => {
 
   it("should auto-rotate token during validateSessionWithHijackProtection", async () => {
     const manager = new SessionManager(prisma, {
-      tokenRotationIntervalSeconds: 0, // Rotate immediately
+      tokenRotationIntervalSeconds: 1, // Rotate after 1 second
     });
 
     const session = await manager.createSession({
@@ -254,14 +254,14 @@ describe("Token Rotation", () => {
       userAgent: "Mozilla/5.0",
     });
 
-    // Set createdAt to the past so rotation triggers
-    prisma._store[0].createdAt = new Date(Date.now() - 100_000);
+    // Set createdAt to well in the past so rotation triggers
+    prisma._store[0].createdAt = new Date(Date.now() - 10_000);
 
     const result = await manager.validateSessionWithHijackProtection("auto-rotate-token");
 
     expect(result.valid).toBe(true);
-    expect(result.rotatedToken).toBeDefined();
-    expect(result.rotatedToken).not.toBe("auto-rotate-token");
+    expect((result as any).rotatedToken).toBeDefined();
+    expect((result as any).rotatedToken).not.toBe("auto-rotate-token");
   });
 });
 
