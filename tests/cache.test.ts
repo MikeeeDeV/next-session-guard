@@ -70,6 +70,19 @@ describe("createMemoryAdapter", () => {
     await cache.blacklist("token-renew", 3600);
     expect(await cache.isBlacklisted("token-renew")).toBe(true);
   });
+
+  it("periodic cleanup interval removes expired entries automatically", async () => {
+    vi.useFakeTimers();
+    const intervalCache = createMemoryAdapter();
+    await intervalCache.blacklist("token-auto-clean", 10); // 10s TTL
+
+    // Advance by 65 seconds to trigger 60s cleanup interval
+    vi.advanceTimersByTime(65000);
+
+    // Should already be cleaned up from store
+    expect(await intervalCache.isBlacklisted("token-auto-clean")).toBe(false);
+    vi.useRealTimers();
+  });
 });
 
 describe("createUpstashAdapter", () => {
