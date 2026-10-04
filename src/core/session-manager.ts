@@ -13,6 +13,7 @@ import {
   TokenRotationResult,
 } from "./types";
 import { getClientMetadata, parseClientInfo } from "./ua-parser";
+import { isMemoryAdapter, memoryAdapterToPrisma } from "./adapter-bridge";
 
 export class SessionManager {
   private prisma: MinimalPrismaClient;
@@ -28,7 +29,11 @@ export class SessionManager {
   };
 
   constructor(prismaClient: any, config?: SessionManagerConfig) {
-    this.prisma = prismaClient as MinimalPrismaClient;
+    // Accept either a Prisma client or the in-memory adapter
+    this.prisma = isMemoryAdapter(prismaClient)
+      ? (memoryAdapterToPrisma(prismaClient) as unknown as MinimalPrismaClient)
+      : (prismaClient as MinimalPrismaClient);
+
     this.config = {
       maxConcurrentSessions: config?.maxConcurrentSessions ?? 0, // 0 = unlimited
       sessionDurationDays: config?.sessionDurationDays ?? 30,
