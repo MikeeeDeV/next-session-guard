@@ -68,10 +68,12 @@ The library is structured into completely independent, tree-shakable subpaths:
 
 | Import Path | Description | External Dependencies |
 | :--- | :--- | :--- |
-| `next-session-guard` | Core Manager, Multi-ORM Adapters, `<ActiveSessionsCard />`, `<AdminSecurityPanel />` | Zero network overhead |
+| `next-session-guard` | Core Manager, Multi-ORM Adapters, and UI Components | Standard |
+| `next-session-guard/server` | Server-only Engine (zero React hooks, safe for API Route Handlers & RSC) | Zero React dependency |
+| `next-session-guard/client` | Client-only Components (`<ActiveSessionsCard />`, `<AdminSecurityPanel />`) | React & Lucide |
 | `next-session-guard/realtime` | Server-Sent Events (SSE) Hub, browser live kick bridge, reconnect handlers | Zero dependencies |
 | `next-session-guard/actions` | Next.js Server Actions for session fetching and revocation | Next.js runtime |
-| `next-session-guard/cache` | Edge-ready Redis & Upstash token blacklisting adapters | Optional Redis/Upstash |
+| `next-session-guard/cache` | Edge-ready In-Memory, Redis & Upstash token blacklisting adapters | Optional Redis/Upstash |
 | `next-session-guard/telegram` | Telegram Admin SOC, Kinetic Travel, HMAC Action Vault | **100% Opt-in** subpath |
 
 ---

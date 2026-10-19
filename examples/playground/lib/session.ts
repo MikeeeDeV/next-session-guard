@@ -1,21 +1,26 @@
 import {
   SessionManager,
   createMemoryAdapter,
-} from "next-session-guard";
+} from "next-session-guard/server";
+import { createMemoryAdapter as createCacheAdapter } from "next-session-guard/cache";
 import { getSSEHub, createSSERevocationBridge } from "next-session-guard/realtime";
 
 // Universal in-memory session adapter for instant playground evaluation
 export const memoryAdapter = createMemoryAdapter();
 
+// Edge-compatible fast in-memory cache adapter for instant blacklist checking
+export const cacheAdapter = createCacheAdapter();
+
 // Initialize the SSE Hub & Revocation Bridge
 export const sseHub = getSSEHub();
 export const sseBridge = createSSERevocationBridge(sseHub);
 
-// Initialize SessionManager with full security features enabled
+// Initialize SessionManager with full security features and cache adapter enabled
 export const sessionManager = new SessionManager(memoryAdapter, {
   maxConcurrentSessions: 5,
   sessionDurationDays: 30,
   activityThrottleSeconds: 60,
+  cacheAdapter,
   hijackingProtection: "strict",
   tokenRotationIntervalSeconds: 86400, // 24 hours
   onSessionRevoked: (event) => {

@@ -125,7 +125,7 @@ export function createPrismaAdapter(prisma: MinimalPrismaClient | any): Database
  * High-performance In-Memory Database Adapter for testing,
  * edge microservices, and rapid playground evaluation.
  */
-export function createMemoryAdapter(): DatabaseAdapter & { _store: any[] } {
+export function createMemoryAdapter(): DatabaseAdapter & { _store: any[]; session: any } {
   const store: any[] = [];
 
   return {
@@ -201,6 +201,87 @@ export function createMemoryAdapter(): DatabaseAdapter & { _store: any[] } {
       }
 
       return { count: deleted };
+    },
+
+    // Prisma-compatible interface for direct SessionManager instantiation
+    session: {
+      async findUnique({ where }: any) {
+        if (where?.sessionToken) {
+          const s = store.find((item) => item.sessionToken === where.sessionToken);
+          return s ? { ...s } : null;
+        }
+        if (where?.id) {
+          const s = store.find((item) => item.id === where.id);
+          return s ? { ...s } : null;
+        }
+        return null;
+      },
+      async findFirst({ where }: any) {
+        const s = store.find((item) => {
+          if (where.id && item.id !== where.id) return false;
+          if (where.userId && item.userId !== where.userId) return false;
+          if (where.isRevoked !== undefined && item.isRevoked !== where.isRevoked) return false;
+          return true;
+        });
+        return s ? { ...s } : null;
+      },
+      async findMany({ where, orderBy }: any = {}) {
+        let results = store.filter((s) => {
+          if (!where) return true;
+          if (where.userId && s.userId !== where.userId) return false;
+          if (where.isRevoked !== undefined && s.isRevoked !== where.isRevoked) return false;
+          if (where.expires?.gt && new Date(s.expires) <= new Date(where.expires.gt)) return false;
+          if (where.id?.in && !where.id.in.includes(s.id)) return false;
+          if (where.id?.not && s.id === where.id.not) return false;
+          if (where.sessionToken?.not && s.sessionToken === where.sessionToken.not) return false;
+          return true;
+        });
+        if (orderBy?.lastActiveAt === "desc") {
+          results.sort((a, b) => new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime());
+        }
+        return results.map((s) => ({ ...s }));
+      },
+      async create({ data }: any) {
+        const newSession = {
+          id: data.id || `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          createdAt: data.createdAt || new Date(),
+          lastActiveAt: data.lastActiveAt || new Date(),
+          isRevoked: false,
+          ...data,
+        };
+        store.push(newSession);
+        return { ...newSession };
+      },
+      async update({ where, data }: any) {
+        const idx = store.findIndex((s) => s.id === where.id || s.sessionToken === where.sessionToken);
+        if (idx === -1) return null;
+        store[idx] = { ...store[idx], ...data };
+        return { ...store[idx] };
+      },
+      async updateMany({ where, data }: any) {
+        let count = 0;
+        for (const s of store) {
+          if (where.id?.in && !where.id.in.includes(s.id)) continue;
+          if (where.id && s.id !== where.id) continue;
+          if (where.userId && s.userId !== where.userId) continue;
+          if (where.isRevoked !== undefined && s.isRevoked !== where.isRevoked) continue;
+          if (where.sessionToken?.not && s.sessionToken === where.sessionToken.not) continue;
+          Object.assign(s, data);
+          count++;
+        }
+        return { count };
+      },
+      async deleteMany({ where }: any = {}) {
+        let count = 0;
+        for (let i = store.length - 1; i >= 0; i--) {
+          const s = store[i];
+          if (where.id?.in && !where.id.in.includes(s.id)) continue;
+          if (where.userId && s.userId !== where.userId) continue;
+          store.splice(i, 1);
+          count++;
+        }
+        return { count };
+      },
     },
   };
 }

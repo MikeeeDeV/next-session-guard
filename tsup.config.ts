@@ -43,6 +43,35 @@ export default defineConfig([
     },
   },
 
+  // ── Server-only entry (zero React hooks, safe for API routes & RSC) ──
+  {
+    ...sharedConfig,
+    entry: { server: "src/server.ts" },
+    format: ["esm", "cjs"],
+    dts: true,
+    external: [
+      "next",
+      "@prisma/client",
+    ],
+  },
+
+  // ── Client-only components entry ('use client' banner) ──
+  {
+    ...sharedConfig,
+    entry: { client: "src/client.ts" },
+    format: ["esm", "cjs"],
+    dts: true,
+    external: [
+      "react",
+      "react-dom",
+      "next",
+      "lucide-react",
+    ],
+    onSuccess: async () => {
+      prependDirective(["client.mjs", "client.js"], '"use client";');
+    },
+  },
+
   // ── Server Actions entry ────────────────────────────────
   {
     ...sharedConfig,

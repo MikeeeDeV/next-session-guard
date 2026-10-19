@@ -177,6 +177,16 @@ export class SessionManager {
   }
 
   /**
+   * Alias for getUserSessions - Fetches all active sessions for a user
+   */
+  async getUserActiveSessions(
+    userId: string,
+    currentSessionTokenOrId?: string
+  ): Promise<ActiveSessionDTO[]> {
+    return this.getUserSessions(userId, currentSessionTokenOrId);
+  }
+
+  /**
    * Fetches all active sessions for a user, formatted for the UI
    */
   async getUserSessions(

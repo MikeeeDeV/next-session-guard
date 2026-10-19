@@ -103,6 +103,20 @@ class SSEHub {
   }
 
   /**
+   * Helper to create a ready-to-return Next.js Response streaming SSE events
+   */
+  createStreamResponse(userId: string, sessionToken = ""): Response {
+    const stream = this.connect(userId, sessionToken);
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
+  }
+
+  /**
    * Disconnect a specific client
    */
   disconnect(clientId: string, userId: string): void {
@@ -350,10 +364,13 @@ export function resetSSEHub(): void {
  * ```
  */
 export function createSSERevocationBridge(
-  hubOptions?: SSEBroadcastOptions
+  hubOrOptions?: SSEHub | SSEBroadcastOptions
 ): (event: SessionRevokedEvent) => void {
   return (event: SessionRevokedEvent) => {
-    const hub = getSSEHub(hubOptions);
+    const hub =
+      hubOrOptions && "broadcastRevocation" in hubOrOptions
+        ? (hubOrOptions as SSEHub)
+        : getSSEHub(hubOrOptions);
     if (event.reason === "all_revoked") {
       hub.broadcastKickAll(event.userId, event.reason);
     } else {

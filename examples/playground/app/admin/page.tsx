@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AdminSecurityPanel } from "next-session-guard";
+import { AdminSecurityPanel } from "next-session-guard/client";
 
 export default function AdminPage() {
   return (
