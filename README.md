@@ -9,7 +9,27 @@
 [![Prisma & Drizzle](https://img.shields.io/badge/ORM-Prisma%20%7C%20Drizzle-2D3748?logo=prisma)](https://www.prisma.io/)
 [![Realtime SSE](https://img.shields.io/badge/Realtime-SSE_Live_Kick-00C7B7?logo=fastapi&logoColor=white)](#-real-time-sse-live-browser-kick)
 [![Tests Passing](https://img.shields.io/badge/tests-215%20passed-brightgreen.svg)](tests)
+[![Docs](https://img.shields.io/badge/docs-complete%20guides-blueviolet.svg)](docs)
 [![XERJ Corpus Hub](https://img.shields.io/badge/AI%20Reference-XERJ%20Corpus%20Hub-8A2BE2?logo=github)](https://github.com/xerj-org/xerj)
+
+---
+
+## 📚 Complete Documentation Suite
+
+For exhaustive architectural diagrams, deep dives, benchmarks, and API references:
+
+| 📖 Guide | Description |
+| :--- | :--- |
+| **[🚀 Getting Started Guide](docs/getting-started.md)** | Step-by-step setup in Next.js 15, ORM configuration, and first protected route |
+| **[🏗️ Architecture & Lifecycle](docs/architecture.md)** | Visual request lifecycles, Mermaid diagrams, and fail-safe state machines |
+| **[📖 Full API Reference](docs/api-reference.md)** | Exhaustive parameter and return type reference for all exported modules |
+| **[⚡ Caching & Edge Performance](docs/cache-adapters.md)** | In-Memory, Upstash Redis, Dragonfly, and sub-millisecond Edge validation |
+| **[📡 Real-Time SSE Revocation](docs/realtime-sse.md)** | Multi-device instant browser kick, reconnection resilience, and hooks |
+| **[🛡️ Security & Hijacking Defense](docs/security-and-hijacking.md)** | Kinetic Impossible Travel (Haversine formula), IP subnet drift, and token auto-rotation |
+| **[🤖 Telegram Admin SOC Suite](docs/telegram-soc.md)** | Autonomous incident response, compact HMAC Action Vault, and webhook lockdown |
+| **[⚡ Next.js 15 Server/Client Boundary](docs/nextjs-15-guide.md)** | Clean separation of Server Actions, Route Handlers, RSC, and Client Components |
+| **[🔄 Migration Guide (v1.x ➔ v2.0.1)](docs/migration-guide.md)** | Step-by-step upgrade checklist and codemods |
+| **[❓ FAQ & Troubleshooting](docs/faq.md)** | Answers to common deployment, multi-pod, and architectural questions |
 
 ---
 
