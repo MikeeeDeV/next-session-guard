@@ -2,13 +2,14 @@
 
 > Enterprise-Grade Multi-Device Session Management, Real-Time SSE Remote Revocation, Session Hijacking Defense, and **Autonomous Telegram Admin SOC Suite** for **Next.js (App Router)**, **Prisma**, and **Drizzle ORM**.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2.0.1-blue.svg)](package.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14%2B%20%7C%2015%2B%20%7C%2016%2B-black?logo=next.js)](https://nextjs.org/)
 [![Prisma & Drizzle](https://img.shields.io/badge/ORM-Prisma%20%7C%20Drizzle-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Telegram SOC](https://img.shields.io/badge/Telegram-Admin_SOC_Guard-2CA5E0?logo=telegram&logoColor=white)](#-telegram-admin-soc-security-suite)
 [![Realtime SSE](https://img.shields.io/badge/Realtime-SSE_Live_Kick-00C7B7?logo=fastapi&logoColor=white)](#-real-time-sse-live-browser-kick)
 [![Tests Passing](https://img.shields.io/badge/tests-215%20passed-brightgreen.svg)](tests)
+[![XERJ Corpus Hub](https://img.shields.io/badge/AI%20Reference-XERJ%20Corpus%20Hub-8A2BE2?logo=github)](https://github.com/xerj-org/xerj)
 
 ---
 
@@ -30,21 +31,23 @@ Traditional authentication libraries leave you completely blind to where your us
 
 ---
 
-## 🇸🇦 نبذة شاملة باللغة العربية
+## 🇸🇦 نبذة شاملة باللغة العربية (الإصدار 2.0.1)
 
-مكتبة **Next-Session-Guard** هي نظام أمني متكامل لإدارة وتحصين جلسات المستخدمين في تطبيقات **Next.js** مع دعم **Prisma** و **Drizzle ORM**:
+مكتبة **Next-Session-Guard** هي نظام أمني متكامل لإدارة وتحصين جلسات المستخدمين في تطبيقات **Next.js (App Router)** مع دعم **Prisma** و **Drizzle ORM** ومحولات الذاكرة السريعة:
 
-1. **تتبع الأجهزة والمواقع جغرافياً:** استخراج تلقائي لنظام التشغيل، المتصفح، الـ IP، والبلد مع أعلام الدول ومؤشرات النشاط اللحظي.
+1. **تتبع الأجهزة والمواقع جغرافياً:** استخراج تلقائي لنظام التشغيل، المتصفح، الـ IP، والبلد مع أعلام الدول ومؤشرات النشاط اللحظي بدون أي مكتبات خارجية ثقيلة.
 2. **الطرد اللحظي الحي عبر المتصفح (Realtime SSE Kick):** عند طرد أي جلسة من لوحة الإدارة أو التيليجرام، يتم إغلاق شاشة المتصفح فوراً وتوجيهه لصفحة تسجيل الدخول **دون انتظار أن يقوم المستخدم بعمل Refresh**.
 3. **الحماية من اختطاف الجلسات (Session Hijacking Guard):** فحص ومطابقة IP أو بلد المستخدم في الميدلوير؛ إذا تم استخدام التوكن من شبكة أو موقع مختلف يتم إبطال الجلسة فوراً بنمطين:
    - **النمط الصارم (Strict):** مطابقة الـ IP حرفياً (تطبيقات البنوك والأنظمة المالية).
    - **النمط المرن (Relaxed):** مطابقة بلد المستخدم (مناسب لمستخدمي الهواتف الذين تتغير شبكاتهم باستمرار).
 4. **التدوير التلقائي للتوكن (Token Auto-Rotation):** تجديد توكن الجلسة تلقائياً كل فترة محددة (مثل 24 ساعة) وحظر التوكن القديم لمنع استغلال التسريبات.
-5. **جدول تنظيف قاعدة البيانات (Garbage Collector):** محرك تنظيف دوري مدمج يدعم جداول: **شهري (30 يوماً)**، **نصف سنوي (180 يوماً)**، **سنوي (365 يوماً)**، أو **يدوياً** بعدد أيام مخصص مع إمكانية التنفيذ المباشر من واجهة المستخدم (GUI).
-6. **لوحة تحكم أمنية كاملة بواجهة رسومية (`<AdminSecurityPanel />`):** لوحة عمليات أمنية (SOC) رسومية جاهزة لإدارة الجلسات، تعديل الإعدادات، ومختبر لمحاكاة الهجمات واختبار الرد الآلي.
-7. **تطبيق تجريبي عملي جاهز للتشغيل (`examples/playground`):** يمكنك تجربة كل شيء عملياً فوراً بكتابة `cd examples/playground && npm run dev`.
-8. **دعم متعدد لقواعد البيانات (Multi-ORM):** دعم رسمي لـ **Prisma** و **Drizzle ORM** ومحول الذاكرة **MemoryAdapter**.
-9. **غرفة عمليات تيليجرام الأمنية (Telegram Admin SOC):** كشف السفر المستحيل فيزيائياً، نظام HMAC المشفر للحد من 64 بايت، مانع إغراق الإشعارات، ووضع الشبح (Honeypot).
+5. **طبقة كاش فائقة السرعة على الـ Edge (`next-session-guard/cache`):** فحص القائمة السوداء للتوكنات المبطّلة في أقل من 1 مللي ثانية باستخدام Memory Cache أو Upstash Redis أو Redis العادي دون استهلاك استعلامات قاعدة البيانات.
+6. **فصل معمارية الـ Server والـ Client (`next-session-guard/server` & `/client`):** توافق كامل 100% مع معمارية Next.js 15 App Router، بحيث تعمل أدوات السيرفر بدون تحميل حزم React في الـ API Routes.
+7. **جدول تنظيف قاعدة البيانات (Garbage Collector):** محرك تنظيف دوري مدمج يدعم جداول: **شهري (30 يوماً)**، **نصف سنوي (180 يوماً)**، **سنوي (365 يوماً)**، أو **يدوياً** بعدد أيام مخصص مع إمكانية التنفيذ المباشر من واجهة المستخدم (GUI).
+8. **لوحة تحكم أمنية كاملة بواجهة رسومية (`<AdminSecurityPanel />`):** لوحة عمليات أمنية (SOC) رسومية جاهزة لإدارة الجلسات، تعديل الإعدادات، ومختبر لمحاكاة الهجمات واختبار الرد الآلي.
+9. **تطبيق تجريبي عملي جاهز للتشغيل (`examples/playground`):** يمكنك تجربة كل شيء عملياً فوراً بكتابة `cd examples/playground && npm run dev` (بدون الحاجة لإنشاء قاعدة بيانات حقيقية بفضل محول الذاكرة).
+10. **دعم متعدد لقواعد البيانات (Multi-ORM):** دعم رسمي لـ **Prisma** و **Drizzle ORM** ومحول الذاكرة **MemoryAdapter**.
+11. **غرفة عمليات تيليجرام الأمنية (Telegram Admin SOC):** كشف السفر المستحيل فيزيائياً عبر معادلات السرعة المدارية، نظام HMAC المشفر للحد من 64 بايت، مانع إغراق الإشعارات، ووضع الشبح (Honeypot).
 
 ---
 
@@ -131,7 +134,8 @@ model Session {
 Initialize `SessionManager`:
 ```typescript
 import { prisma } from "@/lib/prisma";
-import { SessionManager } from "next-session-guard";
+// Import from "next-session-guard/server" for zero-client bundle overhead
+import { SessionManager } from "next-session-guard/server";
 
 export const sessionManager = new SessionManager(prisma, {
   maxConcurrentSessions: 5,
@@ -145,7 +149,7 @@ export const sessionManager = new SessionManager(prisma, {
 ```typescript
 import { db } from "@/db";
 import { sessions } from "@/db/schema";
-import { SessionManager, createDrizzleAdapter } from "next-session-guard";
+import { SessionManager, createDrizzleAdapter } from "next-session-guard/server";
 
 const adapter = createDrizzleAdapter(db, sessions);
 export const sessionManager = new SessionManager(adapter, {
@@ -153,18 +157,41 @@ export const sessionManager = new SessionManager(adapter, {
 });
 ```
 
-### Option C: High-Speed In-Memory Adapter (Testing / Edge)
+### Option C: High-Speed In-Memory Adapter (Testing / Playground)
 
 ```typescript
-import { SessionManager, createMemoryAdapter } from "next-session-guard";
+import { SessionManager, createMemoryAdapter } from "next-session-guard/server";
 
+// Instant zero-database evaluation with built-in Prisma-compatible interface
 const memoryAdapter = createMemoryAdapter();
 export const sessionManager = new SessionManager(memoryAdapter);
 ```
 
 ---
 
-## 📡 3. Real-Time SSE Live Browser Kick
+## ⚡ 3. Edge Blacklist Cache Adapters (`next-session-guard/cache`)
+
+Offload repetitive session verification from your primary database. When sessions are revoked or auto-rotated, their tokens are immediately blacklisted in cache with **sub-millisecond (< 1ms)** lookup speeds:
+
+```typescript
+import { SessionManager } from "next-session-guard/server";
+import { createMemoryAdapter } from "next-session-guard/cache";
+// Or for serverless edge & multi-region clusters:
+// import { createUpstashAdapter } from "next-session-guard/cache";
+// import { createRedisAdapter } from "next-session-guard/cache";
+
+const cache = createMemoryAdapter(); // Fast in-memory Map with auto-TTL cleanup
+
+export const sessionManager = new SessionManager(prisma, {
+  cacheAdapter: cache,
+  maxConcurrentSessions: 5,
+  hijackingProtection: "strict",
+});
+```
+
+---
+
+## 📡 4. Real-Time SSE Live Browser Kick
 
 Eliminates the vulnerability where revoked sessions remain active until the user refreshes or navigates. When kicked from the Admin Panel or Telegram, the user's open tab is **instantly terminated**.
 
@@ -223,7 +250,7 @@ export function useLiveRevocationGuard(userId: string) {
 
 ---
 
-## 🛡️ 4. Session Hijacking Protection (Fingerprint Binding)
+## 🛡️ 5. Session Hijacking Protection (Fingerprint Binding)
 
 Stop token-theft attacks at the Edge:
 
@@ -256,7 +283,7 @@ export async function middleware(request: NextRequest) {
 
 ---
 
-## 🧹 5. Scheduled Database Garbage Collection
+## 🧹 6. Scheduled Database Garbage Collection
 
 Prevent session tables from growing unchecked with preset pruning policies:
 
@@ -299,7 +326,7 @@ export async function GET(req: Request) {
 
 ---
 
-## 🔄 6. Sliding Token Auto-Rotation
+## 🔄 7. Sliding Token Auto-Rotation
 
 Prevent replay attacks by periodically rotating session tokens:
 
@@ -314,12 +341,14 @@ When validating sessions, `validateSessionWithHijackProtection` automatically is
 
 ---
 
-## 🎛️ 7. Admin Security Operations Center (SOC) GUI
+## 🎛️ 8. Admin Security Operations Center (SOC) GUI
 
 Drop the enterprise `<AdminSecurityPanel />` into your admin portal:
 
 ```tsx
-import { AdminSecurityPanel } from "next-session-guard";
+"use client";
+// Import from "next-session-guard/client" or "next-session-guard"
+import { AdminSecurityPanel } from "next-session-guard/client";
 
 export default function AdminPage() {
   return (
@@ -347,7 +376,7 @@ export default function AdminPage() {
 
 ---
 
-## 🤖 8. Telegram Admin SOC Security Suite
+## 🤖 9. Telegram Admin SOC Security Suite
 
 Run a private Security Operations Center right inside your Telegram admin group:
 
@@ -394,12 +423,14 @@ export const POST = createTelegramAdminWebhookHandler({
 
 ---
 
-## 🎨 9. User-Facing React Component (`<ActiveSessionsCard />`)
+## 🎨 10. User-Facing React Component (`<ActiveSessionsCard />`)
 
 Drop this component into your user account settings page:
 
 ```tsx
-import { ActiveSessionsCard } from "next-session-guard";
+"use client";
+// Import from "next-session-guard/client" or "next-session-guard"
+import { ActiveSessionsCard } from "next-session-guard/client";
 
 export default function AccountSecurityPage() {
   return (
@@ -442,9 +473,12 @@ next-session-guard/
 ├── prisma/
 │   └── schema.prisma              # Database Session schema
 ├── src/
+│   ├── client.ts                  # 🎨 Client components entry ('use client' for Next.js App Router)
+│   ├── server.ts                  # ⚙️ Server-only engine entry (zero React hooks, safe for API routes & RSC)
+│   ├── index.ts                   # Universal package root export
 │   ├── actions/                   # Next.js Server Actions
 │   ├── api/                       # App Router API route helpers
-│   ├── cache/                     # Redis & Upstash Edge cache adapters
+│   ├── cache/                     # Redis, Upstash & Memory Edge cache adapters
 │   ├── components/
 │   │   ├── ActiveSessionsCard.tsx # User-facing session list component
 │   │   └── AdminSecurityPanel.tsx # 🎛️ Full SOC Admin Dashboard GUI
